@@ -1,3 +1,63 @@
+
+/
+Claude finished the response
+Ran a command, shared files
+Folder structure and your Supabase keys are already in place — just unzip and run sql/schema.sql in Supabase before deploying.
+
+
+Deadline tracker
+ZIP 
+we dont want so many files.. redo the entire thing in just one index.html file
+
+Ran a command, created a file, shared files
+Down to two files: index.html (board and editor combined, with the "Editor" button toggling between them, no navigation) and schema.sql, which still has to be run in Supabase since that part can't live inside the HTML. schema.sql is unchanged from before — skip re-running it if you already ran it earlier.
+
+
+Index
+Code·HTML 
+
+Schema
+Code·SQL 
+okay we need the buttons and the colours sto be modern use a new set of colours for dark theme bust faded colours. changes:
+add time along with date for assignments with AM and PM. 
+we should enter passcode everytime we click on editor button currently it stays accessible even if yiu go back to main page fix that and make the buttons and layout modern
+
+Created 2 files, ran a command, shared files
+Changes made:
+
+Colours — switched to a cooler, indigo-and-teal faded palette on a slate-black background (previously warm sage/charcoal), with new fonts (Space Grotesk + Inter) and modern button/card styling: hover elevation on cards, a sticky blurred header, and a consistent filled/ghost button system.
+Time added — each assignment now stores a date and time together. Cards show it like "20 Sep 2026, 11:59 PM", and "Overdue" now only kicks in once the actual time has passed, not just the date.
+Passcode fixed — it's held only in memory now, not saved anywhere. Clicking "Back to board" clears it, so the gate shows again every time you open the editor.
+One thing to know: schema.sql now drops and recreates the table (the date columns changed type to carry a time), so re-running it will wipe any test rows you already added — run it again in the Supabase SQL Editor before deploying this version.
+
+
+Index
+Code·HTML 
+
+Schema
+Code·SQL 
+no this layout font and colours are not modern.. make something very modern with black as main colour
+
+Ran a command, created a file, shared files
+Rebuilt around true black rather than charcoal or slate. Key changes:
+
+Background is pure black, cards sit on a barely-lifted near-black surface with hairline white-alpha borders instead of filled color blocks.
+Primary buttons ("Add assignment," "Unlock," "Save") are now solid white with black text — the inverted look you see in tools like Linear or Vercel — everything else is a thin ghost outline.
+Status no longer uses big colored pill badges; it's a small colored dot plus plain text ("Due today," "Overdue by 2 days"), so color only shows up where it's actually meaningful.
+Typography moved to Instrument Sans (headings) and Inter (body), tighter letter-spacing, more breathing room.
+schema.sql is unchanged from the last version, so no need to re-run it if you already did.
+
+
+Index
+Code·HTML 
+
+Write a message…
+
+
+Claude is AI and can make mistakes.
+
+
+Index · HTML
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -6,44 +66,37 @@
 <title>Deadline Tracker</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Sans:wght@500;600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
 <style>
   :root {
-    --bg: #14151b;
-    --surface: #1c1e26;
-    --surface-raised: #242631;
-    --surface-hover: #2b2e3a;
-    --border: #343748;
-    --text: #e9e8f0;
-    --text-muted: #9c9bb0;
-    --text-faint: #67667c;
-
-    --accent: #9089d1;
-    --accent-strong: #b3ace3;
-    --accent-ink: #14131f;
-
-    --today: #d1b46a;
-    --today-bg: #3a331f;
-
-    --soon: #7bbfae;
-    --soon-bg: #1f3430;
-
-    --overdue: #c1798a;
-    --overdue-bg: #3a2530;
-
-    --extended: #7ea8c9;
-    --extended-bg: #22303e;
-
+    --bg: #000000;
+    --surface: #0a0a0c;
+    --surface-raised: #131316;
+    --surface-hover: #19191d;
+    --border: rgba(255, 255, 255, 0.08);
+    --border-strong: rgba(255, 255, 255, 0.18);
+    --text: #f5f5f7;
+    --text-muted: #8e8e96;
+    --text-faint: #57575f;
+ 
+    --white: #ffffff;
+    --white-dim: #e4e4e7;
+    --black: #000000;
+ 
+    --today: #e0c264;
+    --soon: #6fb8ad;
+    --overdue: #e0798a;
+    --extended: #7aa8d9;
+    --upcoming: #6b6b72;
+ 
     --radius-sm: 8px;
     --radius: 12px;
-    --radius-lg: 16px;
-    --shadow-hover: 0 10px 28px rgba(0, 0, 0, 0.35);
-    --shadow-float: 0 20px 60px rgba(0, 0, 0, 0.4);
-
-    --font-display: 'Space Grotesk', -apple-system, sans-serif;
+    --radius-lg: 18px;
+ 
+    --font-display: 'Instrument Sans', -apple-system, sans-serif;
     --font-body: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
   }
-
+ 
   *, *::before, *::after { box-sizing: border-box; }
   html, body { margin: 0; padding: 0; }
   body {
@@ -54,140 +107,140 @@
     line-height: 1.5;
     -webkit-font-smoothing: antialiased;
   }
-  h1, h2 { margin: 0; font-family: var(--font-display); font-weight: 600; letter-spacing: -0.01em; }
+  h1, h2 { margin: 0; font-family: var(--font-display); font-weight: 600; letter-spacing: -0.015em; }
   p { margin: 0; }
-  a { color: var(--accent-strong); text-decoration: none; }
+  a { color: var(--text); text-decoration: none; }
   a:hover { text-decoration: underline; }
   button { font-family: inherit; cursor: pointer; }
   input { font-family: inherit; }
-
-  :focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+ 
+  :focus-visible { outline: 2px solid rgba(255, 255, 255, 0.5); outline-offset: 2px; }
   @media (prefers-reduced-motion: reduce) { * { transition: none !important; animation: none !important; } }
-
+ 
   /* ---------- Header ---------- */
   .site-header {
     position: sticky; top: 0; z-index: 10;
     border-bottom: 1px solid var(--border);
-    background: rgba(28, 30, 38, 0.82);
-    backdrop-filter: blur(10px);
-    -webkit-backdrop-filter: blur(10px);
+    background: rgba(0, 0, 0, 0.75);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
   }
   .header-inner {
-    max-width: 1100px; margin: 0 auto; padding: 22px 20px;
+    max-width: 1120px; margin: 0 auto; padding: 24px 24px;
     display: flex; justify-content: space-between; align-items: center; gap: 16px; flex-wrap: wrap;
   }
-  .site-title { font-size: 1.75rem; }
-  .site-subtitle { margin-top: 4px; color: var(--text-muted); font-size: 0.92rem; }
-
+  .site-title { font-size: 1.85rem; }
+  .site-subtitle { margin-top: 5px; color: var(--text-muted); font-size: 0.9rem; }
+ 
   /* ---------- Buttons ---------- */
   .btn {
     display: inline-flex; align-items: center; justify-content: center; gap: 6px;
     border-radius: var(--radius-sm);
     padding: 10px 18px;
-    font-size: 0.88rem;
+    font-size: 0.86rem;
     font-weight: 500;
     border: 1px solid var(--border);
-    background: var(--surface-raised);
+    background: transparent;
     color: var(--text);
-    transition: background-color 150ms ease, border-color 150ms ease, color 150ms ease, transform 100ms ease;
+    transition: background-color 140ms ease, border-color 140ms ease, color 140ms ease, transform 100ms ease;
   }
-  .btn:hover { background: var(--surface-hover); border-color: var(--text-faint); }
+  .btn:hover { border-color: var(--border-strong); background: rgba(255, 255, 255, 0.04); }
   .btn:active { transform: scale(0.97); }
-  .btn-primary { background: var(--accent); border-color: var(--accent); color: var(--accent-ink); font-weight: 600; }
-  .btn-primary:hover { background: var(--accent-strong); border-color: var(--accent-strong); }
-  .btn-ghost { background: transparent; }
+  .btn-primary { background: var(--white); border-color: var(--white); color: var(--black); font-weight: 600; }
+  .btn-primary:hover { background: var(--white-dim); border-color: var(--white-dim); }
   .btn-danger:hover { border-color: var(--overdue); color: var(--overdue); }
   .nav-btn {
     border-radius: 999px; padding: 9px 20px; border: 1px solid var(--border);
-    background: transparent; color: var(--text); font-size: 0.9rem; font-weight: 500;
-    transition: background-color 150ms ease, border-color 150ms ease, color 150ms ease;
+    background: transparent; color: var(--text); font-size: 0.88rem; font-weight: 500;
+    transition: background-color 140ms ease, border-color 140ms ease;
   }
-  .nav-btn:hover { border-color: var(--accent); color: var(--accent-strong); background: var(--surface-raised); }
-
+  .nav-btn:hover { border-color: var(--border-strong); background: rgba(255, 255, 255, 0.05); }
+ 
   /* ---------- Layout ---------- */
-  .cards-wrap, .editor-main { max-width: 1100px; margin: 0 auto; padding: 28px 20px 60px; }
-  .editor-top { max-width: 1100px; margin: 0 auto; padding: 20px 20px 0; }
-  .cards-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 16px; }
+  .cards-wrap, .editor-main { max-width: 1120px; margin: 0 auto; padding: 32px 24px 64px; }
+  .editor-top { max-width: 1120px; margin: 0 auto; padding: 24px 24px 0; }
+  .cards-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 18px; }
   .loading, .empty, .error { color: var(--text-muted); padding: 40px 0; grid-column: 1 / -1; }
   .error { color: var(--overdue); }
-
+ 
   /* ---------- Card ---------- */
   .card {
-    background: var(--surface); border: 1px solid var(--border); border-left: 4px solid var(--text-faint);
-    border-radius: var(--radius); padding: 18px 18px 16px; display: flex; flex-direction: column; gap: 10px;
-    transition: transform 150ms ease, box-shadow 150ms ease, border-color 150ms ease;
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: var(--radius); padding: 20px 20px 18px; display: flex; flex-direction: column; gap: 12px;
+    transition: transform 150ms ease, border-color 150ms ease, box-shadow 150ms ease;
   }
-  .card:hover { transform: translateY(-2px); box-shadow: var(--shadow-hover); border-color: var(--text-faint); }
-  .card.status-upcoming { border-left-color: var(--text-faint); }
-  .card.status-soon { border-left-color: var(--soon); }
-  .card.status-tomorrow, .card.status-today { border-left-color: var(--today); }
-  .card.status-overdue { border-left-color: var(--overdue); }
-
+  .card:hover { border-color: var(--border-strong); transform: translateY(-2px); box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.05); }
+ 
   .card-top { display: flex; justify-content: space-between; align-items: baseline; gap: 10px; }
   .card-subject { font-size: 1.2rem; line-height: 1.25; }
   .card-type {
-    font-size: 0.75rem; font-weight: 500; color: var(--text-muted);
-    background: var(--surface-raised); border-radius: var(--radius-sm); padding: 3px 10px; white-space: nowrap;
+    font-size: 0.72rem; font-weight: 500; color: var(--text-muted);
+    border: 1px solid var(--border); border-radius: 999px; padding: 3px 11px; white-space: nowrap;
   }
   .card-name { color: var(--text-muted); font-size: 0.95rem; }
-  .card-dates { font-size: 0.88rem; color: var(--text-muted); display: flex; align-items: center; gap: 6px; flex-wrap: wrap; }
+  .card-datetime { font-size: 0.87rem; color: var(--text-muted); display: flex; align-items: center; gap: 6px; flex-wrap: wrap; }
   .date-original { text-decoration: line-through; color: var(--text-faint); }
   .date-arrow { color: var(--text-faint); }
   .date-new { color: var(--extended); }
-
-  .card-bottom { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 2px; }
-  .tag { font-size: 0.8rem; font-weight: 500; padding: 4px 12px; border-radius: 999px; background: var(--surface-raised); color: var(--text-muted); }
-  .tag-today, .tag-tomorrow { background: var(--today-bg); color: var(--today); }
-  .tag-soon { background: var(--soon-bg); color: var(--soon); }
-  .tag-overdue { background: var(--overdue-bg); color: var(--overdue); }
-  .tag-upcoming { background: var(--surface-raised); color: var(--text-muted); }
-  .tag-extended { background: var(--extended-bg); color: var(--extended); }
-
-  .card-actions { display: flex; gap: 8px; margin-top: 6px; }
-
+ 
+  .status-row { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; margin-top: 2px; }
+  .status-dot { width: 6px; height: 6px; border-radius: 50%; flex-shrink: 0; background: var(--upcoming); }
+  .status-dot.today, .status-dot.tomorrow { background: var(--today); }
+  .status-dot.soon { background: var(--soon); }
+  .status-dot.overdue { background: var(--overdue); }
+  .status-text { font-size: 0.85rem; color: var(--text-muted); }
+  .status-text.today, .status-text.tomorrow { color: var(--today); }
+  .status-text.soon { color: var(--soon); }
+  .status-text.overdue { color: var(--overdue); }
+  .tag-extended {
+    font-size: 0.72rem; font-weight: 500; color: var(--extended);
+    border: 1px solid rgba(122, 168, 217, 0.35); border-radius: 999px; padding: 2px 10px;
+  }
+ 
+  .card-actions { display: flex; gap: 8px; margin-top: 4px; }
+ 
   /* ---------- Forms ---------- */
-  .panel { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: 22px; margin-bottom: 24px; }
-  .panel-title { font-size: 1.1rem; margin-bottom: 16px; }
+  .panel { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: 24px; margin-bottom: 24px; }
+  .panel-title { font-size: 1.1rem; margin-bottom: 18px; }
   .assignment-form, .edit-form { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 14px; align-items: end; }
   .field { display: flex; flex-direction: column; gap: 6px; }
-  .field label { font-size: 0.85rem; color: var(--text-muted); }
+  .field label { font-size: 0.83rem; color: var(--text-muted); }
   input[type="text"], input:not([type]), input[type="date"], input[type="time"], input[type="password"] {
     background: var(--surface-raised); border: 1px solid var(--border); color: var(--text);
-    border-radius: var(--radius-sm); padding: 9px 11px; font-size: 0.95rem; width: 100%;
-    transition: border-color 150ms ease;
+    border-radius: var(--radius-sm); padding: 10px 12px; font-size: 0.95rem; width: 100%;
+    transition: border-color 140ms ease;
   }
-  input:focus { border-color: var(--accent); }
+  input:focus { border-color: rgba(255, 255, 255, 0.4); }
   .checkbox-field { display: flex; align-items: center; gap: 8px; font-size: 0.9rem; color: var(--text-muted); }
-  .edit-form { background: var(--surface-raised); border: 1px solid var(--border); border-radius: var(--radius); padding: 16px; }
+  .edit-form { background: var(--surface-raised); border: 1px solid var(--border); border-radius: var(--radius); padding: 18px; }
   .edit-actions { display: flex; gap: 8px; }
   .form-error { color: var(--overdue); font-size: 0.85rem; grid-column: 1 / -1; }
-
+ 
   /* ---------- Passcode gate ---------- */
-  .gate { display: flex; align-items: center; justify-content: center; padding: 60px 20px; }
+  .gate { display: flex; align-items: center; justify-content: center; padding: 64px 20px; }
   .gate-form {
     background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-lg);
-    padding: 32px; max-width: 320px; width: 100%; display: flex; flex-direction: column; gap: 14px;
-    box-shadow: var(--shadow-float);
+    padding: 34px; max-width: 320px; width: 100%; display: flex; flex-direction: column; gap: 14px;
+    box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.04);
   }
   .gate-title { font-size: 1.3rem; }
   .gate-copy { color: var(--text-muted); font-size: 0.9rem; }
   .gate-error { color: var(--overdue); font-size: 0.88rem; }
-
+ 
   /* ---------- Footer ---------- */
-  .site-footer { max-width: 1100px; margin: 0 auto; padding: 20px; color: var(--text-faint); font-size: 0.85rem; }
-  .site-footer a { color: var(--text-muted); }
-
+  .site-footer { max-width: 1120px; margin: 0 auto; padding: 20px 24px; color: var(--text-faint); font-size: 0.85rem; }
+ 
   @media (max-width: 640px) {
-    .header-inner { padding: 16px; }
-    .cards-wrap, .editor-main { padding: 20px 14px 40px; }
-    .editor-top { padding: 16px 14px 0; }
+    .header-inner { padding: 18px 16px; }
+    .cards-wrap, .editor-main { padding: 24px 14px 44px; }
+    .editor-top { padding: 18px 14px 0; }
     .cards-grid { grid-template-columns: 1fr; }
     .card-top { flex-direction: column; align-items: flex-start; gap: 4px; }
   }
 </style>
 </head>
 <body>
-
+ 
   <header class="site-header">
     <div class="header-inner">
       <div>
@@ -197,22 +250,22 @@
       <button type="button" class="nav-btn" id="show-editor-btn">Editor</button>
     </div>
   </header>
-
+ 
   <main class="cards-wrap" id="board-view">
     <div id="board-cards" class="cards-grid" aria-live="polite">
       <p class="loading">Loading assignments&hellip;</p>
     </div>
   </main>
-
+ 
   <footer class="site-footer" id="board-footer">
     <p>Assignments are added and updated from the editor.</p>
   </footer>
-
+ 
   <main class="editor-main" id="editor-view" hidden>
     <div class="editor-top">
       <button type="button" class="nav-btn" id="back-to-board-btn">Back to board</button>
     </div>
-
+ 
     <div id="gate" class="gate">
       <form id="gate-form" class="gate-form">
         <h1 class="gate-title">Editor access</h1>
@@ -222,7 +275,7 @@
         <p class="gate-error" id="gate-error" hidden>Incorrect passcode.</p>
       </form>
     </div>
-
+ 
     <div id="editor-panel" hidden>
       <section class="panel">
         <h2 class="panel-title">Add an assignment</h2>
@@ -261,32 +314,32 @@
           <p class="form-error" id="add-error" hidden></p>
         </form>
       </section>
-
+ 
       <section class="panel">
         <h2 class="panel-title">All assignments</h2>
         <div id="editor-cards" class="cards-grid"></div>
       </section>
     </div>
   </main>
-
+ 
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script>
     // ---------- Config ----------
     const SUPABASE_URL = 'https://wuyzjoasxnmrekufbluv.supabase.co';
     const SUPABASE_ANON_KEY = 'sb_publishable_5ez_V-wtEPg7aRNdNwjaFw_eSR0B5BS';
     const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-
+ 
     // Kept only in memory — never persisted — so the passcode is required
     // again every time the editor is opened.
     let currentPasscode = null;
-
+ 
     // ---------- Shared: data + rendering ----------
     async function fetchAssignments() {
       const { data, error } = await supabaseClient.from('assignments').select('*');
       if (error) throw error;
       return data || [];
     }
-
+ 
     // Status is computed from the exact due timestamp (extended timestamp,
     // if set), so an item only flips to "Overdue" once its due time has
     // actually passed, not just its calendar date.
@@ -296,11 +349,11 @@
       const now = new Date();
       const effectiveMs = dueDate.getTime();
       const isOverdue = effectiveMs < now.getTime();
-
+ 
       const dueMidnight = new Date(dueDate); dueMidnight.setHours(0, 0, 0, 0);
       const nowMidnight = new Date(now); nowMidnight.setHours(0, 0, 0, 0);
       const dayDiff = Math.round((dueMidnight.getTime() - nowMidnight.getTime()) / 86400000);
-
+ 
       let label, statusClass;
       if (isOverdue) {
         if (dayDiff === 0) {
@@ -323,10 +376,10 @@
         label = `Due in ${dayDiff} days`;
         statusClass = 'upcoming';
       }
-
+ 
       return { effectiveMs, isOverdue, dayDiff, label, statusClass };
     }
-
+ 
     // Nearest upcoming deadline first, down to the minute. Overdue items
     // sink below the upcoming list, with the most recently overdue closest
     // to the top of that section and the longest-overdue at the very end.
@@ -338,7 +391,7 @@
         return sa.effectiveMs - sb.effectiveMs;
       });
     }
-
+ 
     function formatDateTime(isoStr) {
       if (!isoStr) return '';
       const d = new Date(isoStr);
@@ -346,76 +399,77 @@
       const timePart = d.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', hour12: true });
       return `${datePart}, ${timePart}`;
     }
-
+ 
     function toLocalDateValue(d) {
       const yyyy = d.getFullYear();
       const mm = String(d.getMonth() + 1).padStart(2, '0');
       const dd = String(d.getDate()).padStart(2, '0');
       return `${yyyy}-${mm}-${dd}`;
     }
-
+ 
     function toLocalTimeValue(d) {
       const hh = String(d.getHours()).padStart(2, '0');
       const mi = String(d.getMinutes()).padStart(2, '0');
       return `${hh}:${mi}`;
     }
-
+ 
     function escapeHtml(str) {
       const div = document.createElement('div');
       div.textContent = str ?? '';
       return div.innerHTML;
     }
-
+ 
     function createCardElement(assignment, options = {}) {
       const { editable = false, onEdit, onDelete } = options;
       const status = getStatus(assignment);
-
+ 
       const card = document.createElement('article');
-      card.className = `card status-${status.statusClass}`;
+      card.className = 'card';
       card.dataset.id = assignment.id;
-
+ 
       const dateHtml = (assignment.is_extended && assignment.extended_at)
         ? `<span class="date-original">${formatDateTime(assignment.due_at)}</span>
            <span class="date-arrow">&rarr;</span>
            <span class="date-new">${formatDateTime(assignment.extended_at)}</span>`
         : `<span class="date-single">${formatDateTime(assignment.due_at)}</span>`;
-
+ 
       card.innerHTML = `
         <div class="card-top">
           <h2 class="card-subject">${escapeHtml(assignment.subject)}</h2>
           <span class="card-type">${escapeHtml(assignment.assignment_type)}</span>
         </div>
         <p class="card-name">${escapeHtml(assignment.assignment_name)}</p>
-        <div class="card-dates">${dateHtml}</div>
-        <div class="card-bottom">
-          <span class="tag tag-${status.statusClass}">${status.label}</span>
-          ${assignment.is_extended ? '<span class="tag tag-extended">Extended</span>' : ''}
+        <div class="card-datetime">${dateHtml}</div>
+        <div class="status-row">
+          <span class="status-dot ${status.statusClass}"></span>
+          <span class="status-text ${status.statusClass}">${status.label}</span>
+          ${assignment.is_extended ? '<span class="tag-extended">Extended</span>' : ''}
         </div>
       `;
-
+ 
       if (editable) {
         const actions = document.createElement('div');
         actions.className = 'card-actions';
-
+ 
         const editBtn = document.createElement('button');
         editBtn.type = 'button';
-        editBtn.className = 'btn btn-ghost';
+        editBtn.className = 'btn';
         editBtn.textContent = 'Edit';
         editBtn.addEventListener('click', () => onEdit(assignment, card));
-
+ 
         const delBtn = document.createElement('button');
         delBtn.type = 'button';
-        delBtn.className = 'btn btn-ghost btn-danger';
+        delBtn.className = 'btn btn-danger';
         delBtn.textContent = 'Delete';
         delBtn.addEventListener('click', () => onDelete(assignment, card));
-
+ 
         actions.append(editBtn, delBtn);
         card.appendChild(actions);
       }
-
+ 
       return card;
     }
-
+ 
     async function refreshCards(container, options = {}) {
       container.innerHTML = '<p class="loading">Loading assignments&hellip;</p>';
       try {
@@ -433,11 +487,11 @@
         return [];
       }
     }
-
+ 
     // ---------- Board view ----------
     const boardCardsEl = document.getElementById('board-cards');
     const summaryEl = document.getElementById('summary-line');
-
+ 
     async function updateSummary() {
       try {
         const list = await fetchAssignments();
@@ -450,15 +504,15 @@
         summaryEl.textContent = '';
       }
     }
-
+ 
     async function tickBoard() {
       await refreshCards(boardCardsEl, { editable: false });
       await updateSummary();
     }
-
+ 
     tickBoard();
     setInterval(tickBoard, 60 * 1000);
-
+ 
     // ---------- View toggle ----------
     const boardView = document.getElementById('board-view');
     const boardFooter = document.getElementById('board-footer');
@@ -470,7 +524,7 @@
     const gateError = document.getElementById('gate-error');
     const passcodeInput = document.getElementById('passcode-input');
     const editorPanel = document.getElementById('editor-panel');
-
+ 
     showEditorBtn.addEventListener('click', () => {
       boardView.hidden = true;
       boardFooter.hidden = true;
@@ -481,7 +535,7 @@
       passcodeInput.value = '';
       passcodeInput.focus();
     });
-
+ 
     backToBoardBtn.addEventListener('click', async () => {
       currentPasscode = null; // passcode must be re-entered next time
       editorView.hidden = true;
@@ -489,22 +543,22 @@
       boardFooter.hidden = false;
       await tickBoard();
     });
-
+ 
     // ---------- Editor: passcode gate + CRUD ----------
     const editorCardsEl = document.getElementById('editor-cards');
     const addForm = document.getElementById('add-form');
     const addError = document.getElementById('add-error');
-
+ 
     function getPasscode() {
       return currentPasscode || '';
     }
-
+ 
     async function verifyPasscode(code) {
       const { data, error } = await supabaseClient.rpc('verify_passcode', { passcode: code });
       if (error) return false;
       return data === true;
     }
-
+ 
     gateForm.addEventListener('submit', async (e) => {
       e.preventDefault();
       gateError.hidden = true;
@@ -521,7 +575,7 @@
         passcodeInput.focus();
       }
     });
-
+ 
     async function loadEditorCards() {
       await refreshCards(editorCardsEl, {
         editable: true,
@@ -529,18 +583,18 @@
         onDelete: handleDelete,
       });
     }
-
+ 
     addForm.addEventListener('submit', async (e) => {
       e.preventDefault();
       addError.hidden = true;
-
+ 
       const subject = document.getElementById('add-subject').value.trim();
       const name = document.getElementById('add-name').value.trim();
       const type = document.getElementById('add-type').value.trim();
       const date = document.getElementById('add-date').value;
       const time = document.getElementById('add-time').value;
       const dueAtISO = new Date(`${date}T${time}`).toISOString();
-
+ 
       const { error } = await supabaseClient.rpc('add_assignment', {
         passcode: getPasscode(),
         p_subject: subject,
@@ -548,38 +602,38 @@
         p_assignment_type: type,
         p_due_at: dueAtISO,
       });
-
+ 
       if (error) {
         addError.textContent = `Couldn't add assignment: ${error.message}`;
         addError.hidden = false;
         return;
       }
-
+ 
       addForm.reset();
       document.getElementById('add-time').value = '23:59';
       await loadEditorCards();
     });
-
+ 
     async function handleDelete(assignment, cardEl) {
       const confirmed = confirm(`Delete "${assignment.assignment_name}" (${assignment.subject})?`);
       if (!confirmed) return;
-
+ 
       const { error } = await supabaseClient.rpc('delete_assignment', {
         passcode: getPasscode(),
         p_id: assignment.id,
       });
-
+ 
       if (error) {
         alert(`Couldn't delete: ${error.message}`);
         return;
       }
       await loadEditorCards();
     }
-
+ 
     function openEditForm(assignment, cardEl) {
       const dueDate = new Date(assignment.due_at);
       const extDate = assignment.extended_at ? new Date(assignment.extended_at) : null;
-
+ 
       const form = document.createElement('form');
       form.className = 'edit-form';
       form.innerHTML = `
@@ -617,11 +671,11 @@
         </div>
         <div class="edit-actions">
           <button type="submit" class="btn btn-primary">Save</button>
-          <button type="button" class="btn btn-ghost btn-cancel">Cancel</button>
+          <button type="button" class="btn btn-cancel">Cancel</button>
         </div>
         <p class="form-error e-error" hidden></p>
       `;
-
+ 
       const extendedCheckbox = form.querySelector('.e-extended');
       const extendedDateField = form.querySelector('.e-extended-date-field');
       const extendedTimeField = form.querySelector('.e-extended-time-field');
@@ -629,29 +683,29 @@
         extendedDateField.hidden = !extendedCheckbox.checked;
         extendedTimeField.hidden = !extendedCheckbox.checked;
       });
-
+ 
       form.querySelector('.btn-cancel').addEventListener('click', () => {
         form.replaceWith(cardEl);
       });
-
+ 
       form.addEventListener('submit', async (e) => {
         e.preventDefault();
         const errorEl = form.querySelector('.e-error');
         errorEl.hidden = true;
-
+ 
         const isExtended = extendedCheckbox.checked;
         const extDateVal = form.querySelector('.e-extended-date').value;
         const extTimeVal = form.querySelector('.e-extended-time').value;
-
+ 
         if (isExtended && (!extDateVal || !extTimeVal)) {
           errorEl.textContent = 'Pick a new date and time, or uncheck Extended.';
           errorEl.hidden = false;
           return;
         }
-
+ 
         const dueAtISO = new Date(`${form.querySelector('.e-date').value}T${form.querySelector('.e-time').value}`).toISOString();
         const extendedAtISO = isExtended ? new Date(`${extDateVal}T${extTimeVal}`).toISOString() : null;
-
+ 
         const { error } = await supabaseClient.rpc('update_assignment', {
           passcode: getPasscode(),
           p_id: assignment.id,
@@ -662,18 +716,19 @@
           p_is_extended: isExtended,
           p_extended_at: extendedAtISO,
         });
-
+ 
         if (error) {
           errorEl.textContent = `Couldn't save: ${error.message}`;
           errorEl.hidden = false;
           return;
         }
-
+ 
         await loadEditorCards();
       });
-
+ 
       cardEl.replaceWith(form);
     }
   </script>
 </body>
 </html>
+ 
