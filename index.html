@@ -80,21 +80,6 @@
   }
   .site-subtitle { margin-top: 6px; color: var(--text-muted); font-size: 0.9rem; }
 
-  .quick-nav {
-    max-width: 900px; margin: 0 auto; padding: 0 24px 18px;
-    display: flex; gap: 8px; position: relative; z-index: 1;
-  }
-  .quick-nav-btn {
-    font-family: var(--font-mono); font-size: 0.78rem; letter-spacing: -0.01em;
-    padding: 6px 15px; border-radius: 999px; border: 1px solid var(--border);
-    background: var(--glass); color: var(--text-muted);
-    transition: border-color 140ms ease, color 140ms ease, background-color 140ms ease;
-  }
-  .quick-nav-btn:hover { border-color: var(--border-strong); color: var(--text); background: var(--glass-strong); }
-
-  @keyframes jump-flash { 0%, 100% { box-shadow: none; } 25% { box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.5), 0 0 28px rgba(255, 255, 255, 0.22); } }
-  .jump-flash { animation: jump-flash 1.1s ease; }
-
   /* ---------- Buttons ---------- */
   .btn {
     display: inline-flex; align-items: center; justify-content: center; gap: 6px;
@@ -312,10 +297,6 @@
         <p class="site-subtitle" id="summary-line">Loading assignments&hellip;</p>
       </div>
       <button type="button" class="nav-btn" id="show-editor-btn">Editor</button>
-    </div>
-    <div class="quick-nav" id="quick-nav">
-      <button type="button" class="quick-nav-btn" id="jump-today">Today</button>
-      <button type="button" class="quick-nav-btn" id="jump-week">This week</button>
     </div>
   </header>
 
@@ -677,38 +658,6 @@
       }
     }
 
-    // ---------- Quick jump: Today / This week ----------
-    const jumpTodayBtn = document.getElementById('jump-today');
-    const jumpWeekBtn = document.getElementById('jump-week');
-    let todayAnchorEl = null;
-    let weekAnchorEl = null;
-
-    function updateQuickNavAnchors(sortedList) {
-      const entryEls = boardTimelineEl.querySelectorAll('.timeline-entry');
-      todayAnchorEl = null;
-      weekAnchorEl = null;
-      sortedList.forEach((a, i) => {
-        const s = getStatus(a);
-        if (s.isOverdue) return;
-        if (todayAnchorEl === null && s.dayDiff === 0) todayAnchorEl = entryEls[i];
-        if (weekAnchorEl === null && s.dayDiff <= 6) weekAnchorEl = entryEls[i];
-      });
-    }
-
-    function jumpToEntry(entryEl, emptyMessage) {
-      if (!entryEl) { showToast(emptyMessage); return; }
-      entryEl.scrollIntoView({ behavior: 'smooth', block: 'center' });
-      const content = entryEl.querySelector('.timeline-content');
-      if (content) {
-        content.classList.remove('jump-flash');
-        void content.offsetWidth;
-        content.classList.add('jump-flash');
-      }
-    }
-
-    jumpTodayBtn.addEventListener('click', () => jumpToEntry(todayAnchorEl, 'Nothing due today'));
-    jumpWeekBtn.addEventListener('click', () => jumpToEntry(weekAnchorEl, 'Nothing due this week'));
-
     // ---------- Board view ----------
     const boardTimelineEl = document.getElementById('board-timeline');
     const summaryEl = document.getElementById('summary-line');
@@ -728,13 +677,12 @@
     }
 
     async function tickBoard() {
-      const sorted = await refreshTimeline(boardTimelineEl, {
+      await refreshTimeline(boardTimelineEl, {
         editable: false,
         showSkeleton: !boardLoadedOnce,
         emptyMessage: 'Once assignments are added from the editor, they will line up here.',
       });
       boardLoadedOnce = true;
-      updateQuickNavAnchors(sorted);
       await updateSummary();
     }
 
@@ -753,8 +701,6 @@
     const passcodeInput = document.getElementById('passcode-input');
     const editorPanel = document.getElementById('editor-panel');
 
-    const quickNav = document.getElementById('quick-nav');
-
     function playEnter(el) {
       el.classList.remove('view-enter');
       void el.offsetWidth;
@@ -764,7 +710,6 @@
     showEditorBtn.addEventListener('click', () => {
       boardView.hidden = true;
       boardFooter.hidden = true;
-      quickNav.hidden = true;
       editorView.hidden = false;
       gate.hidden = false;
       editorPanel.hidden = true;
@@ -779,7 +724,6 @@
       editorView.hidden = true;
       boardView.hidden = false;
       boardFooter.hidden = false;
-      quickNav.hidden = false;
       playEnter(boardView);
       await tickBoard();
     });
