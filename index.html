@@ -1,63 +1,3 @@
-
-/
-Claude finished the response
-Ran a command, shared files
-Folder structure and your Supabase keys are already in place — just unzip and run sql/schema.sql in Supabase before deploying.
-
-
-Deadline tracker
-ZIP 
-we dont want so many files.. redo the entire thing in just one index.html file
-
-Ran a command, created a file, shared files
-Down to two files: index.html (board and editor combined, with the "Editor" button toggling between them, no navigation) and schema.sql, which still has to be run in Supabase since that part can't live inside the HTML. schema.sql is unchanged from before — skip re-running it if you already ran it earlier.
-
-
-Index
-Code·HTML 
-
-Schema
-Code·SQL 
-okay we need the buttons and the colours sto be modern use a new set of colours for dark theme bust faded colours. changes:
-add time along with date for assignments with AM and PM. 
-we should enter passcode everytime we click on editor button currently it stays accessible even if yiu go back to main page fix that and make the buttons and layout modern
-
-Created 2 files, ran a command, shared files
-Changes made:
-
-Colours — switched to a cooler, indigo-and-teal faded palette on a slate-black background (previously warm sage/charcoal), with new fonts (Space Grotesk + Inter) and modern button/card styling: hover elevation on cards, a sticky blurred header, and a consistent filled/ghost button system.
-Time added — each assignment now stores a date and time together. Cards show it like "20 Sep 2026, 11:59 PM", and "Overdue" now only kicks in once the actual time has passed, not just the date.
-Passcode fixed — it's held only in memory now, not saved anywhere. Clicking "Back to board" clears it, so the gate shows again every time you open the editor.
-One thing to know: schema.sql now drops and recreates the table (the date columns changed type to carry a time), so re-running it will wipe any test rows you already added — run it again in the Supabase SQL Editor before deploying this version.
-
-
-Index
-Code·HTML 
-
-Schema
-Code·SQL 
-no this layout font and colours are not modern.. make something very modern with black as main colour
-
-Ran a command, created a file, shared files
-Rebuilt around true black rather than charcoal or slate. Key changes:
-
-Background is pure black, cards sit on a barely-lifted near-black surface with hairline white-alpha borders instead of filled color blocks.
-Primary buttons ("Add assignment," "Unlock," "Save") are now solid white with black text — the inverted look you see in tools like Linear or Vercel — everything else is a thin ghost outline.
-Status no longer uses big colored pill badges; it's a small colored dot plus plain text ("Due today," "Overdue by 2 days"), so color only shows up where it's actually meaningful.
-Typography moved to Instrument Sans (headings) and Inter (body), tighter letter-spacing, more breathing room.
-schema.sql is unchanged from the last version, so no need to re-run it if you already did.
-
-
-Index
-Code·HTML 
-
-Write a message…
-
-
-Claude is AI and can make mistakes.
-
-
-Index · HTML
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -66,7 +6,7 @@ Index · HTML
 <title>Deadline Tracker</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Instrument+Sans:wght@500;600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Sans:wght@500;600;700&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
 <style>
   :root {
     --bg: #000000;
@@ -78,25 +18,26 @@ Index · HTML
     --text: #f5f5f7;
     --text-muted: #8e8e96;
     --text-faint: #57575f;
- 
+
     --white: #ffffff;
     --white-dim: #e4e4e7;
     --black: #000000;
- 
+
     --today: #e0c264;
     --soon: #6fb8ad;
     --overdue: #e0798a;
     --extended: #7aa8d9;
     --upcoming: #6b6b72;
- 
+
     --radius-sm: 8px;
     --radius: 12px;
     --radius-lg: 18px;
- 
+
     --font-display: 'Instrument Sans', -apple-system, sans-serif;
     --font-body: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+    --font-mono: 'JetBrains Mono', ui-monospace, 'SF Mono', monospace;
   }
- 
+
   *, *::before, *::after { box-sizing: border-box; }
   html, body { margin: 0; padding: 0; }
   body {
@@ -106,6 +47,21 @@ Index · HTML
     font-size: 16px;
     line-height: 1.5;
     -webkit-font-smoothing: antialiased;
+    position: relative;
+  }
+  /* One deliberate atmospheric moment: a soft glow behind the header. */
+  body::before {
+    content: '';
+    position: fixed;
+    top: -30%;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 900px;
+    height: 700px;
+    background: radial-gradient(circle, rgba(122, 168, 217, 0.10), rgba(111, 184, 173, 0.06) 45%, transparent 70%);
+    filter: blur(70px);
+    pointer-events: none;
+    z-index: 0;
   }
   h1, h2 { margin: 0; font-family: var(--font-display); font-weight: 600; letter-spacing: -0.015em; }
   p { margin: 0; }
@@ -113,10 +69,10 @@ Index · HTML
   a:hover { text-decoration: underline; }
   button { font-family: inherit; cursor: pointer; }
   input { font-family: inherit; }
- 
+
   :focus-visible { outline: 2px solid rgba(255, 255, 255, 0.5); outline-offset: 2px; }
-  @media (prefers-reduced-motion: reduce) { * { transition: none !important; animation: none !important; } }
- 
+  @media (prefers-reduced-motion: reduce) { *, *::before, *::after { transition: none !important; animation: none !important; } }
+
   /* ---------- Header ---------- */
   .site-header {
     position: sticky; top: 0; z-index: 10;
@@ -128,10 +84,11 @@ Index · HTML
   .header-inner {
     max-width: 1120px; margin: 0 auto; padding: 24px 24px;
     display: flex; justify-content: space-between; align-items: center; gap: 16px; flex-wrap: wrap;
+    position: relative; z-index: 1;
   }
   .site-title { font-size: 1.85rem; }
   .site-subtitle { margin-top: 5px; color: var(--text-muted); font-size: 0.9rem; }
- 
+
   /* ---------- Buttons ---------- */
   .btn {
     display: inline-flex; align-items: center; justify-content: center; gap: 6px;
@@ -155,22 +112,28 @@ Index · HTML
     transition: background-color 140ms ease, border-color 140ms ease;
   }
   .nav-btn:hover { border-color: var(--border-strong); background: rgba(255, 255, 255, 0.05); }
- 
+
   /* ---------- Layout ---------- */
-  .cards-wrap, .editor-main { max-width: 1120px; margin: 0 auto; padding: 32px 24px 64px; }
-  .editor-top { max-width: 1120px; margin: 0 auto; padding: 24px 24px 0; }
+  .cards-wrap, .editor-main { max-width: 1120px; margin: 0 auto; padding: 32px 24px 64px; position: relative; z-index: 1; }
+  .editor-top { max-width: 1120px; margin: 0 auto; padding: 24px 24px 0; position: relative; z-index: 1; }
   .cards-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 18px; }
-  .loading, .empty, .error { color: var(--text-muted); padding: 40px 0; grid-column: 1 / -1; }
+  .empty, .error { color: var(--text-muted); padding: 40px 0; grid-column: 1 / -1; }
   .error { color: var(--overdue); }
- 
+
+  /* ---------- View transitions ---------- */
+  @keyframes view-in { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: translateY(0); } }
+  .view-enter { animation: view-in 220ms ease; }
+
   /* ---------- Card ---------- */
+  @keyframes card-in { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
   .card {
     background: var(--surface); border: 1px solid var(--border);
     border-radius: var(--radius); padding: 20px 20px 18px; display: flex; flex-direction: column; gap: 12px;
     transition: transform 150ms ease, border-color 150ms ease, box-shadow 150ms ease;
   }
+  .card.card-enter { animation: card-in 320ms ease both; }
   .card:hover { border-color: var(--border-strong); transform: translateY(-2px); box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.05); }
- 
+
   .card-top { display: flex; justify-content: space-between; align-items: baseline; gap: 10px; }
   .card-subject { font-size: 1.2rem; line-height: 1.25; }
   .card-type {
@@ -178,44 +141,71 @@ Index · HTML
     border: 1px solid var(--border); border-radius: 999px; padding: 3px 11px; white-space: nowrap;
   }
   .card-name { color: var(--text-muted); font-size: 0.95rem; }
-  .card-datetime { font-size: 0.87rem; color: var(--text-muted); display: flex; align-items: center; gap: 6px; flex-wrap: wrap; }
+  .card-datetime {
+    font-family: var(--font-mono); font-size: 0.83rem; letter-spacing: -0.01em;
+    color: var(--text-muted); display: flex; align-items: center; gap: 6px; flex-wrap: wrap;
+  }
   .date-original { text-decoration: line-through; color: var(--text-faint); }
   .date-arrow { color: var(--text-faint); }
   .date-new { color: var(--extended); }
- 
+
   .status-row { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; margin-top: 2px; }
-  .status-dot { width: 6px; height: 6px; border-radius: 50%; flex-shrink: 0; background: var(--upcoming); }
+  .status-dot { position: relative; width: 6px; height: 6px; border-radius: 50%; flex-shrink: 0; background: var(--upcoming); }
   .status-dot.today, .status-dot.tomorrow { background: var(--today); }
   .status-dot.soon { background: var(--soon); }
   .status-dot.overdue { background: var(--overdue); }
+  @keyframes dot-ping { 0% { transform: scale(1); opacity: 0.55; } 100% { transform: scale(2.6); opacity: 0; } }
+  .status-dot.today::after, .status-dot.overdue::after {
+    content: ''; position: absolute; inset: -4px; border-radius: 50%;
+    background: inherit; animation: dot-ping 2s ease-out infinite;
+  }
   .status-text { font-size: 0.85rem; color: var(--text-muted); }
   .status-text.today, .status-text.tomorrow { color: var(--today); }
   .status-text.soon { color: var(--soon); }
   .status-text.overdue { color: var(--overdue); }
+  .status-countdown { font-family: var(--font-mono); font-size: 0.76rem; color: var(--text-faint); }
   .tag-extended {
     font-size: 0.72rem; font-weight: 500; color: var(--extended);
     border: 1px solid rgba(122, 168, 217, 0.35); border-radius: 999px; padding: 2px 10px;
   }
- 
+
   .card-actions { display: flex; gap: 8px; margin-top: 4px; }
- 
+
+  /* ---------- Skeleton loading ---------- */
+  @keyframes skeleton-shimmer { 0% { background-position: 200% 0; } 100% { background-position: -200% 0; } }
+  .skeleton-card {
+    background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius);
+    padding: 20px; display: flex; flex-direction: column; gap: 12px;
+  }
+  .skeleton-bar {
+    height: 13px; border-radius: 6px;
+    background: linear-gradient(90deg, var(--surface-raised) 25%, var(--surface-hover) 50%, var(--surface-raised) 75%);
+    background-size: 200% 100%;
+    animation: skeleton-shimmer 1.4s ease-in-out infinite;
+  }
+
   /* ---------- Forms ---------- */
   .panel { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: 24px; margin-bottom: 24px; }
   .panel-title { font-size: 1.1rem; margin-bottom: 18px; }
   .assignment-form, .edit-form { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 14px; align-items: end; }
   .field { display: flex; flex-direction: column; gap: 6px; }
   .field label { font-size: 0.83rem; color: var(--text-muted); }
-  input[type="text"], input:not([type]), input[type="date"], input[type="time"], input[type="password"] {
+  input[type="text"], input:not([type]), input[type="password"] {
     background: var(--surface-raised); border: 1px solid var(--border); color: var(--text);
     border-radius: var(--radius-sm); padding: 10px 12px; font-size: 0.95rem; width: 100%;
     transition: border-color 140ms ease;
+  }
+  input[type="date"], input[type="time"] {
+    background: var(--surface-raised); border: 1px solid var(--border); color: var(--text);
+    border-radius: var(--radius-sm); padding: 10px 12px; font-size: 0.92rem; width: 100%;
+    font-family: var(--font-mono); transition: border-color 140ms ease;
   }
   input:focus { border-color: rgba(255, 255, 255, 0.4); }
   .checkbox-field { display: flex; align-items: center; gap: 8px; font-size: 0.9rem; color: var(--text-muted); }
   .edit-form { background: var(--surface-raised); border: 1px solid var(--border); border-radius: var(--radius); padding: 18px; }
   .edit-actions { display: flex; gap: 8px; }
   .form-error { color: var(--overdue); font-size: 0.85rem; grid-column: 1 / -1; }
- 
+
   /* ---------- Passcode gate ---------- */
   .gate { display: flex; align-items: center; justify-content: center; padding: 64px 20px; }
   .gate-form {
@@ -226,21 +216,57 @@ Index · HTML
   .gate-title { font-size: 1.3rem; }
   .gate-copy { color: var(--text-muted); font-size: 0.9rem; }
   .gate-error { color: var(--overdue); font-size: 0.88rem; }
- 
+
+  /* ---------- Toasts ---------- */
+  @keyframes toast-in { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+  @keyframes toast-out { to { opacity: 0; transform: translateY(10px); } }
+  .toast-stack {
+    position: fixed; bottom: 20px; right: 20px; z-index: 300;
+    display: flex; flex-direction: column; gap: 10px; align-items: flex-end;
+    pointer-events: none;
+  }
+  .toast {
+    background: var(--surface-raised); border: 1px solid var(--border-strong);
+    color: var(--text); padding: 12px 18px; border-radius: var(--radius-sm);
+    font-size: 0.88rem; box-shadow: 0 16px 40px rgba(0, 0, 0, 0.6);
+    animation: toast-in 200ms ease, toast-out 200ms ease 2.3s forwards;
+    max-width: 300px;
+  }
+  .toast.error { border-color: rgba(224, 121, 138, 0.45); color: var(--overdue); }
+
+  /* ---------- Confirm modal ---------- */
+  .modal-overlay {
+    position: fixed; inset: 0; background: rgba(0, 0, 0, 0.6);
+    display: flex; align-items: center; justify-content: center; z-index: 200;
+    backdrop-filter: blur(4px); -webkit-backdrop-filter: blur(4px);
+    padding: 20px;
+  }
+  .modal-card {
+    background: var(--surface); border: 1px solid var(--border-strong); border-radius: var(--radius-lg);
+    padding: 26px; max-width: 340px; width: 100%;
+    display: flex; flex-direction: column; gap: 16px;
+    box-shadow: 0 24px 64px rgba(0, 0, 0, 0.6);
+  }
+  .modal-title { font-size: 1.05rem; font-family: var(--font-display); font-weight: 600; }
+  .modal-message { color: var(--text-muted); font-size: 0.92rem; }
+  .modal-actions { display: flex; gap: 10px; justify-content: flex-end; }
+
   /* ---------- Footer ---------- */
-  .site-footer { max-width: 1120px; margin: 0 auto; padding: 20px 24px; color: var(--text-faint); font-size: 0.85rem; }
- 
+  .site-footer { max-width: 1120px; margin: 0 auto; padding: 20px 24px; color: var(--text-faint); font-size: 0.85rem; position: relative; z-index: 1; }
+
   @media (max-width: 640px) {
     .header-inner { padding: 18px 16px; }
     .cards-wrap, .editor-main { padding: 24px 14px 44px; }
     .editor-top { padding: 18px 14px 0; }
     .cards-grid { grid-template-columns: 1fr; }
     .card-top { flex-direction: column; align-items: flex-start; gap: 4px; }
+    .toast-stack { left: 14px; right: 14px; align-items: stretch; }
+    .toast { max-width: none; }
   }
 </style>
 </head>
 <body>
- 
+
   <header class="site-header">
     <div class="header-inner">
       <div>
@@ -250,22 +276,20 @@ Index · HTML
       <button type="button" class="nav-btn" id="show-editor-btn">Editor</button>
     </div>
   </header>
- 
+
   <main class="cards-wrap" id="board-view">
-    <div id="board-cards" class="cards-grid" aria-live="polite">
-      <p class="loading">Loading assignments&hellip;</p>
-    </div>
+    <div id="board-cards" class="cards-grid" aria-live="polite"></div>
   </main>
- 
+
   <footer class="site-footer" id="board-footer">
     <p>Assignments are added and updated from the editor.</p>
   </footer>
- 
+
   <main class="editor-main" id="editor-view" hidden>
     <div class="editor-top">
       <button type="button" class="nav-btn" id="back-to-board-btn">Back to board</button>
     </div>
- 
+
     <div id="gate" class="gate">
       <form id="gate-form" class="gate-form">
         <h1 class="gate-title">Editor access</h1>
@@ -275,7 +299,7 @@ Index · HTML
         <p class="gate-error" id="gate-error" hidden>Incorrect passcode.</p>
       </form>
     </div>
- 
+
     <div id="editor-panel" hidden>
       <section class="panel">
         <h2 class="panel-title">Add an assignment</h2>
@@ -314,46 +338,103 @@ Index · HTML
           <p class="form-error" id="add-error" hidden></p>
         </form>
       </section>
- 
+
       <section class="panel">
         <h2 class="panel-title">All assignments</h2>
         <div id="editor-cards" class="cards-grid"></div>
       </section>
     </div>
   </main>
- 
+
+  <div class="modal-overlay" id="confirm-overlay" hidden>
+    <div class="modal-card">
+      <h2 class="modal-title">Delete this assignment?</h2>
+      <p class="modal-message" id="confirm-message"></p>
+      <div class="modal-actions">
+        <button type="button" class="btn" id="confirm-cancel-btn">Cancel</button>
+        <button type="button" class="btn btn-primary btn-danger" id="confirm-ok-btn">Delete</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="toast-stack" id="toast-stack" aria-live="polite"></div>
+
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script>
     // ---------- Config ----------
     const SUPABASE_URL = 'https://wuyzjoasxnmrekufbluv.supabase.co';
     const SUPABASE_ANON_KEY = 'sb_publishable_5ez_V-wtEPg7aRNdNwjaFw_eSR0B5BS';
     const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
- 
+
     // Kept only in memory — never persisted — so the passcode is required
     // again every time the editor is opened.
     let currentPasscode = null;
- 
+
+    // ---------- Toasts ----------
+    const toastStack = document.getElementById('toast-stack');
+    function showToast(message, type = 'default') {
+      const t = document.createElement('div');
+      t.className = type === 'error' ? 'toast error' : 'toast';
+      t.textContent = message;
+      toastStack.appendChild(t);
+      setTimeout(() => t.remove(), 2600);
+    }
+
+    // ---------- Confirm modal (replaces window.confirm) ----------
+    const confirmOverlay = document.getElementById('confirm-overlay');
+    const confirmMessage = document.getElementById('confirm-message');
+    const confirmOkBtn = document.getElementById('confirm-ok-btn');
+    const confirmCancelBtn = document.getElementById('confirm-cancel-btn');
+
+    function showConfirm(message) {
+      return new Promise((resolve) => {
+        confirmMessage.textContent = message;
+        confirmOverlay.hidden = false;
+        function cleanup(result) {
+          confirmOverlay.hidden = true;
+          confirmOkBtn.removeEventListener('click', onOk);
+          confirmCancelBtn.removeEventListener('click', onCancel);
+          resolve(result);
+        }
+        function onOk() { cleanup(true); }
+        function onCancel() { cleanup(false); }
+        confirmOkBtn.addEventListener('click', onOk);
+        confirmCancelBtn.addEventListener('click', onCancel);
+      });
+    }
+
     // ---------- Shared: data + rendering ----------
     async function fetchAssignments() {
       const { data, error } = await supabaseClient.from('assignments').select('*');
       if (error) throw error;
       return data || [];
     }
- 
+
+    function formatCountdown(diffMs) {
+      const absMs = Math.abs(diffMs);
+      const totalMinutes = Math.floor(absMs / 60000);
+      const hours = Math.floor(totalMinutes / 60);
+      const minutes = totalMinutes % 60;
+      const joined = hours > 0 ? `${hours}h ${minutes}m` : `${minutes}m`;
+      return diffMs >= 0 ? `${joined} left` : `${joined} ago`;
+    }
+
     // Status is computed from the exact due timestamp (extended timestamp,
     // if set), so an item only flips to "Overdue" once its due time has
-    // actually passed, not just its calendar date.
+    // actually passed, not just its calendar date. Anything within 24
+    // hours also gets a live hour/minute countdown.
     function getStatus(assignment) {
       const effectiveISO = (assignment.is_extended && assignment.extended_at) ? assignment.extended_at : assignment.due_at;
       const dueDate = new Date(effectiveISO);
       const now = new Date();
       const effectiveMs = dueDate.getTime();
-      const isOverdue = effectiveMs < now.getTime();
- 
+      const diffMs = effectiveMs - now.getTime();
+      const isOverdue = diffMs < 0;
+
       const dueMidnight = new Date(dueDate); dueMidnight.setHours(0, 0, 0, 0);
       const nowMidnight = new Date(now); nowMidnight.setHours(0, 0, 0, 0);
       const dayDiff = Math.round((dueMidnight.getTime() - nowMidnight.getTime()) / 86400000);
- 
+
       let label, statusClass;
       if (isOverdue) {
         if (dayDiff === 0) {
@@ -376,10 +457,12 @@ Index · HTML
         label = `Due in ${dayDiff} days`;
         statusClass = 'upcoming';
       }
- 
-      return { effectiveMs, isOverdue, dayDiff, label, statusClass };
+
+      const countdown = Math.abs(diffMs) < 24 * 60 * 60 * 1000 ? formatCountdown(diffMs) : null;
+
+      return { effectiveMs, isOverdue, dayDiff, label, statusClass, countdown };
     }
- 
+
     // Nearest upcoming deadline first, down to the minute. Overdue items
     // sink below the upcoming list, with the most recently overdue closest
     // to the top of that section and the longest-overdue at the very end.
@@ -391,7 +474,7 @@ Index · HTML
         return sa.effectiveMs - sb.effectiveMs;
       });
     }
- 
+
     function formatDateTime(isoStr) {
       if (!isoStr) return '';
       const d = new Date(isoStr);
@@ -399,40 +482,54 @@ Index · HTML
       const timePart = d.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', hour12: true });
       return `${datePart}, ${timePart}`;
     }
- 
+
     function toLocalDateValue(d) {
       const yyyy = d.getFullYear();
       const mm = String(d.getMonth() + 1).padStart(2, '0');
       const dd = String(d.getDate()).padStart(2, '0');
       return `${yyyy}-${mm}-${dd}`;
     }
- 
+
     function toLocalTimeValue(d) {
       const hh = String(d.getHours()).padStart(2, '0');
       const mi = String(d.getMinutes()).padStart(2, '0');
       return `${hh}:${mi}`;
     }
- 
+
     function escapeHtml(str) {
       const div = document.createElement('div');
       div.textContent = str ?? '';
       return div.innerHTML;
     }
- 
+
+    function renderSkeletons(container, count = 4) {
+      container.innerHTML = '';
+      for (let i = 0; i < count; i++) {
+        const c = document.createElement('div');
+        c.className = 'skeleton-card';
+        c.innerHTML = `
+          <div class="skeleton-bar" style="width:55%;height:18px;"></div>
+          <div class="skeleton-bar" style="width:80%;"></div>
+          <div class="skeleton-bar" style="width:40%;"></div>
+        `;
+        container.appendChild(c);
+      }
+    }
+
     function createCardElement(assignment, options = {}) {
       const { editable = false, onEdit, onDelete } = options;
       const status = getStatus(assignment);
- 
+
       const card = document.createElement('article');
       card.className = 'card';
       card.dataset.id = assignment.id;
- 
+
       const dateHtml = (assignment.is_extended && assignment.extended_at)
         ? `<span class="date-original">${formatDateTime(assignment.due_at)}</span>
            <span class="date-arrow">&rarr;</span>
            <span class="date-new">${formatDateTime(assignment.extended_at)}</span>`
         : `<span class="date-single">${formatDateTime(assignment.due_at)}</span>`;
- 
+
       card.innerHTML = `
         <div class="card-top">
           <h2 class="card-subject">${escapeHtml(assignment.subject)}</h2>
@@ -443,35 +540,37 @@ Index · HTML
         <div class="status-row">
           <span class="status-dot ${status.statusClass}"></span>
           <span class="status-text ${status.statusClass}">${status.label}</span>
+          ${status.countdown ? `<span class="status-countdown">${status.countdown}</span>` : ''}
           ${assignment.is_extended ? '<span class="tag-extended">Extended</span>' : ''}
         </div>
       `;
- 
+
       if (editable) {
         const actions = document.createElement('div');
         actions.className = 'card-actions';
- 
+
         const editBtn = document.createElement('button');
         editBtn.type = 'button';
         editBtn.className = 'btn';
         editBtn.textContent = 'Edit';
         editBtn.addEventListener('click', () => onEdit(assignment, card));
- 
+
         const delBtn = document.createElement('button');
         delBtn.type = 'button';
         delBtn.className = 'btn btn-danger';
         delBtn.textContent = 'Delete';
         delBtn.addEventListener('click', () => onDelete(assignment, card));
- 
+
         actions.append(editBtn, delBtn);
         card.appendChild(actions);
       }
- 
+
       return card;
     }
- 
+
     async function refreshCards(container, options = {}) {
-      container.innerHTML = '<p class="loading">Loading assignments&hellip;</p>';
+      const { showSkeleton = true } = options;
+      if (showSkeleton) renderSkeletons(container);
       try {
         const list = await fetchAssignments();
         const sorted = sortAssignments(list);
@@ -480,18 +579,26 @@ Index · HTML
           container.innerHTML = '<p class="empty">No assignments yet.</p>';
           return sorted;
         }
-        sorted.forEach(a => container.appendChild(createCardElement(a, options)));
+        sorted.forEach((a, i) => {
+          const cardEl = createCardElement(a, options);
+          if (showSkeleton) {
+            cardEl.classList.add('card-enter');
+            cardEl.style.animationDelay = `${Math.min(i, 8) * 35}ms`;
+          }
+          container.appendChild(cardEl);
+        });
         return sorted;
       } catch (err) {
         container.innerHTML = `<p class="error">Couldn't load assignments: ${escapeHtml(err.message)}</p>`;
         return [];
       }
     }
- 
+
     // ---------- Board view ----------
     const boardCardsEl = document.getElementById('board-cards');
     const summaryEl = document.getElementById('summary-line');
- 
+    let boardLoadedOnce = false;
+
     async function updateSummary() {
       try {
         const list = await fetchAssignments();
@@ -504,15 +611,16 @@ Index · HTML
         summaryEl.textContent = '';
       }
     }
- 
+
     async function tickBoard() {
-      await refreshCards(boardCardsEl, { editable: false });
+      await refreshCards(boardCardsEl, { editable: false, showSkeleton: !boardLoadedOnce });
+      boardLoadedOnce = true;
       await updateSummary();
     }
- 
+
     tickBoard();
     setInterval(tickBoard, 60 * 1000);
- 
+
     // ---------- View toggle ----------
     const boardView = document.getElementById('board-view');
     const boardFooter = document.getElementById('board-footer');
@@ -524,7 +632,13 @@ Index · HTML
     const gateError = document.getElementById('gate-error');
     const passcodeInput = document.getElementById('passcode-input');
     const editorPanel = document.getElementById('editor-panel');
- 
+
+    function playEnter(el) {
+      el.classList.remove('view-enter');
+      void el.offsetWidth;
+      el.classList.add('view-enter');
+    }
+
     showEditorBtn.addEventListener('click', () => {
       boardView.hidden = true;
       boardFooter.hidden = true;
@@ -533,32 +647,34 @@ Index · HTML
       editorPanel.hidden = true;
       gateError.hidden = true;
       passcodeInput.value = '';
+      playEnter(editorView);
       passcodeInput.focus();
     });
- 
+
     backToBoardBtn.addEventListener('click', async () => {
       currentPasscode = null; // passcode must be re-entered next time
       editorView.hidden = true;
       boardView.hidden = false;
       boardFooter.hidden = false;
+      playEnter(boardView);
       await tickBoard();
     });
- 
+
     // ---------- Editor: passcode gate + CRUD ----------
     const editorCardsEl = document.getElementById('editor-cards');
     const addForm = document.getElementById('add-form');
     const addError = document.getElementById('add-error');
- 
+
     function getPasscode() {
       return currentPasscode || '';
     }
- 
+
     async function verifyPasscode(code) {
       const { data, error } = await supabaseClient.rpc('verify_passcode', { passcode: code });
       if (error) return false;
       return data === true;
     }
- 
+
     gateForm.addEventListener('submit', async (e) => {
       e.preventDefault();
       gateError.hidden = true;
@@ -568,33 +684,35 @@ Index · HTML
         currentPasscode = code;
         gate.hidden = true;
         editorPanel.hidden = false;
-        await loadEditorCards();
+        playEnter(editorPanel);
+        await loadEditorCards(true);
       } else {
         gateError.hidden = false;
         passcodeInput.value = '';
         passcodeInput.focus();
       }
     });
- 
-    async function loadEditorCards() {
+
+    async function loadEditorCards(showSkeleton = false) {
       await refreshCards(editorCardsEl, {
         editable: true,
         onEdit: openEditForm,
         onDelete: handleDelete,
+        showSkeleton,
       });
     }
- 
+
     addForm.addEventListener('submit', async (e) => {
       e.preventDefault();
       addError.hidden = true;
- 
+
       const subject = document.getElementById('add-subject').value.trim();
       const name = document.getElementById('add-name').value.trim();
       const type = document.getElementById('add-type').value.trim();
       const date = document.getElementById('add-date').value;
       const time = document.getElementById('add-time').value;
       const dueAtISO = new Date(`${date}T${time}`).toISOString();
- 
+
       const { error } = await supabaseClient.rpc('add_assignment', {
         passcode: getPasscode(),
         p_subject: subject,
@@ -602,38 +720,40 @@ Index · HTML
         p_assignment_type: type,
         p_due_at: dueAtISO,
       });
- 
+
       if (error) {
         addError.textContent = `Couldn't add assignment: ${error.message}`;
         addError.hidden = false;
         return;
       }
- 
+
       addForm.reset();
       document.getElementById('add-time').value = '23:59';
       await loadEditorCards();
+      showToast('Assignment added');
     });
- 
+
     async function handleDelete(assignment, cardEl) {
-      const confirmed = confirm(`Delete "${assignment.assignment_name}" (${assignment.subject})?`);
+      const confirmed = await showConfirm(`Delete "${assignment.assignment_name}" (${assignment.subject})? This can't be undone.`);
       if (!confirmed) return;
- 
+
       const { error } = await supabaseClient.rpc('delete_assignment', {
         passcode: getPasscode(),
         p_id: assignment.id,
       });
- 
+
       if (error) {
-        alert(`Couldn't delete: ${error.message}`);
+        showToast(`Couldn't delete: ${error.message}`, 'error');
         return;
       }
       await loadEditorCards();
+      showToast('Assignment deleted');
     }
- 
+
     function openEditForm(assignment, cardEl) {
       const dueDate = new Date(assignment.due_at);
       const extDate = assignment.extended_at ? new Date(assignment.extended_at) : null;
- 
+
       const form = document.createElement('form');
       form.className = 'edit-form';
       form.innerHTML = `
@@ -675,7 +795,7 @@ Index · HTML
         </div>
         <p class="form-error e-error" hidden></p>
       `;
- 
+
       const extendedCheckbox = form.querySelector('.e-extended');
       const extendedDateField = form.querySelector('.e-extended-date-field');
       const extendedTimeField = form.querySelector('.e-extended-time-field');
@@ -683,29 +803,29 @@ Index · HTML
         extendedDateField.hidden = !extendedCheckbox.checked;
         extendedTimeField.hidden = !extendedCheckbox.checked;
       });
- 
+
       form.querySelector('.btn-cancel').addEventListener('click', () => {
         form.replaceWith(cardEl);
       });
- 
+
       form.addEventListener('submit', async (e) => {
         e.preventDefault();
         const errorEl = form.querySelector('.e-error');
         errorEl.hidden = true;
- 
+
         const isExtended = extendedCheckbox.checked;
         const extDateVal = form.querySelector('.e-extended-date').value;
         const extTimeVal = form.querySelector('.e-extended-time').value;
- 
+
         if (isExtended && (!extDateVal || !extTimeVal)) {
           errorEl.textContent = 'Pick a new date and time, or uncheck Extended.';
           errorEl.hidden = false;
           return;
         }
- 
+
         const dueAtISO = new Date(`${form.querySelector('.e-date').value}T${form.querySelector('.e-time').value}`).toISOString();
         const extendedAtISO = isExtended ? new Date(`${extDateVal}T${extTimeVal}`).toISOString() : null;
- 
+
         const { error } = await supabaseClient.rpc('update_assignment', {
           passcode: getPasscode(),
           p_id: assignment.id,
@@ -716,19 +836,19 @@ Index · HTML
           p_is_extended: isExtended,
           p_extended_at: extendedAtISO,
         });
- 
+
         if (error) {
           errorEl.textContent = `Couldn't save: ${error.message}`;
           errorEl.hidden = false;
           return;
         }
- 
+
         await loadEditorCards();
+        showToast('Changes saved');
       });
- 
+
       cardEl.replaceWith(form);
     }
   </script>
 </body>
 </html>
- 
