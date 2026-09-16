@@ -7,34 +7,370 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600&family=IBM+Plex+Sans:wght@400;500;600&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="css/style.css">
+<style>
+  :root {
+    --bg: #1b1a18;
+    --surface: #242220;
+    --surface-raised: #2b2925;
+    --border: #3a3632;
+    --text: #ece7de;
+    --text-muted: #a89f92;
+    --text-faint: #756b5e;
+
+    --accent: #93ad89;
+    --accent-strong: #b7cdae;
+    --accent-ink: #14170f;
+
+    --extended: #85a0b8;
+    --extended-bg: #2c333b;
+
+    --today: #c3a768;
+    --today-bg: #3a3325;
+
+    --soon: #b6c294;
+    --soon-bg: #333526;
+
+    --overdue: #b06d68;
+    --overdue-bg: #382825;
+
+    --radius: 10px;
+    --font-display: 'Fraunces', Georgia, serif;
+    --font-body: 'IBM Plex Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+  }
+
+  *, *::before, *::after { box-sizing: border-box; }
+  html, body { margin: 0; padding: 0; }
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: var(--font-body);
+    font-size: 16px;
+    line-height: 1.5;
+    -webkit-font-smoothing: antialiased;
+  }
+  h1, h2 { margin: 0; font-family: var(--font-display); font-weight: 600; }
+  p { margin: 0; }
+  a { color: var(--accent-strong); text-decoration: none; }
+  a:hover { text-decoration: underline; }
+  button { font-family: inherit; cursor: pointer; }
+  input { font-family: inherit; }
+
+  :focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+  @media (prefers-reduced-motion: reduce) { * { transition: none !important; animation: none !important; } }
+
+  .site-header { border-bottom: 1px solid var(--border); background: var(--surface); }
+  .header-inner {
+    max-width: 1100px; margin: 0 auto; padding: 24px 20px;
+    display: flex; justify-content: space-between; align-items: center; gap: 16px; flex-wrap: wrap;
+  }
+  .site-title { font-size: 1.7rem; letter-spacing: 0.01em; }
+  .site-subtitle { margin-top: 4px; color: var(--text-muted); font-size: 0.92rem; }
+  .link-btn {
+    border: 1px solid var(--border); border-radius: 999px; padding: 8px 18px;
+    font-size: 0.9rem; color: var(--text); white-space: nowrap; background: transparent;
+  }
+  .link-btn:hover { border-color: var(--accent); color: var(--accent-strong); }
+
+  .cards-wrap, .editor-main { max-width: 1100px; margin: 0 auto; padding: 28px 20px 60px; }
+  .editor-top { max-width: 1100px; margin: 0 auto; padding: 20px 20px 0; }
+  .cards-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 16px; }
+  .loading, .empty, .error { color: var(--text-muted); padding: 40px 0; grid-column: 1 / -1; }
+  .error { color: var(--overdue); }
+
+  .card {
+    background: var(--surface); border: 1px solid var(--border); border-left: 4px solid var(--text-faint);
+    border-radius: var(--radius); padding: 18px 18px 16px; display: flex; flex-direction: column; gap: 10px;
+  }
+  .card.status-upcoming { border-left-color: var(--text-faint); }
+  .card.status-soon { border-left-color: var(--soon); }
+  .card.status-tomorrow, .card.status-today { border-left-color: var(--today); }
+  .card.status-overdue { border-left-color: var(--overdue); }
+
+  .card-top { display: flex; justify-content: space-between; align-items: baseline; gap: 10px; }
+  .card-subject { font-size: 1.2rem; line-height: 1.25; }
+  .card-type {
+    font-size: 0.78rem; color: var(--text-muted); border: 1px solid var(--border);
+    border-radius: 999px; padding: 2px 10px; white-space: nowrap;
+  }
+  .card-name { color: var(--text-muted); font-size: 0.95rem; }
+  .card-dates { font-size: 0.88rem; color: var(--text-muted); display: flex; align-items: center; gap: 6px; flex-wrap: wrap; }
+  .date-original { text-decoration: line-through; color: var(--text-faint); }
+  .date-arrow { color: var(--text-faint); }
+  .date-new { color: var(--extended); }
+
+  .card-bottom { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 2px; }
+  .tag { font-size: 0.8rem; padding: 4px 11px; border-radius: 999px; background: var(--surface-raised); color: var(--text-muted); }
+  .tag-today, .tag-tomorrow { background: var(--today-bg); color: var(--today); }
+  .tag-soon { background: var(--soon-bg); color: var(--soon); }
+  .tag-overdue { background: var(--overdue-bg); color: var(--overdue); }
+  .tag-upcoming { background: var(--surface-raised); color: var(--text-muted); }
+  .tag-extended { background: var(--extended-bg); color: var(--extended); }
+
+  .card-actions { display: flex; gap: 8px; margin-top: 6px; }
+  .btn {
+    border: 1px solid var(--border); background: transparent; color: var(--text);
+    border-radius: 7px; padding: 7px 14px; font-size: 0.88rem;
+  }
+  .btn:hover { border-color: var(--accent); }
+  .btn-delete:hover { border-color: var(--overdue); color: var(--overdue); }
+  .btn-save, button[type="submit"] { background: var(--accent); border-color: var(--accent); color: var(--accent-ink); font-weight: 600; }
+  .btn-save:hover, button[type="submit"]:hover { background: var(--accent-strong); }
+
+  .panel { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 22px; margin-bottom: 24px; }
+  .panel-title { font-size: 1.1rem; margin-bottom: 16px; }
+  .assignment-form, .edit-form { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 14px; align-items: end; }
+  .field { display: flex; flex-direction: column; gap: 6px; }
+  .field label { font-size: 0.85rem; color: var(--text-muted); }
+  input[type="text"], input:not([type]), input[type="date"], input[type="password"] {
+    background: var(--surface-raised); border: 1px solid var(--border); color: var(--text);
+    border-radius: 7px; padding: 9px 11px; font-size: 0.95rem; width: 100%;
+  }
+  input:focus { border-color: var(--accent); }
+  .checkbox-field { display: flex; align-items: center; gap: 8px; font-size: 0.9rem; color: var(--text-muted); }
+  .edit-form { background: var(--surface-raised); border: 1px solid var(--border); border-radius: var(--radius); padding: 16px; }
+  .edit-actions { display: flex; gap: 8px; }
+  .form-error { color: var(--overdue); font-size: 0.85rem; grid-column: 1 / -1; }
+
+  .gate { display: flex; align-items: center; justify-content: center; padding: 60px 20px; }
+  .gate-form {
+    background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius);
+    padding: 32px; max-width: 320px; width: 100%; display: flex; flex-direction: column; gap: 14px;
+  }
+  .gate-title { font-size: 1.3rem; }
+  .gate-copy { color: var(--text-muted); font-size: 0.9rem; }
+  .gate-error { color: var(--overdue); font-size: 0.88rem; }
+
+  .site-footer { max-width: 1100px; margin: 0 auto; padding: 20px; color: var(--text-faint); font-size: 0.85rem; }
+  .site-footer a { color: var(--text-muted); }
+
+  @media (max-width: 640px) {
+    .header-inner { padding: 18px 16px; }
+    .cards-wrap, .editor-main { padding: 20px 14px 40px; }
+    .editor-top { padding: 16px 14px 0; }
+    .cards-grid { grid-template-columns: 1fr; }
+    .card-top { flex-direction: column; align-items: flex-start; gap: 4px; }
+  }
+</style>
 </head>
 <body>
+
   <header class="site-header">
     <div class="header-inner">
       <div>
         <h1 class="site-title">Deadline Tracker</h1>
         <p class="site-subtitle" id="summary-line">Loading assignments&hellip;</p>
       </div>
-      <a class="editor-link" href="editor.html">Editor</a>
+      <button type="button" class="link-btn" id="show-editor-btn">Editor</button>
     </div>
   </header>
 
-  <main class="cards-wrap">
-    <div id="cards" class="cards-grid" aria-live="polite">
+  <main class="cards-wrap" id="board-view">
+    <div id="board-cards" class="cards-grid" aria-live="polite">
       <p class="loading">Loading assignments&hellip;</p>
     </div>
   </main>
 
-  <footer class="site-footer">
-    <p>Assignments are added and updated from the <a href="editor.html">editor page</a>.</p>
+  <footer class="site-footer" id="board-footer">
+    <p>Assignments are added and updated from the editor.</p>
   </footer>
 
+  <main class="editor-main" id="editor-view" hidden>
+    <div class="editor-top">
+      <button type="button" class="link-btn" id="back-to-board-btn">Back to board</button>
+    </div>
+
+    <div id="gate" class="gate">
+      <form id="gate-form" class="gate-form">
+        <h1 class="gate-title">Editor access</h1>
+        <p class="gate-copy">Enter the passcode to add, edit, or remove assignments.</p>
+        <input type="password" id="passcode-input" placeholder="Passcode" inputmode="numeric" autocomplete="off" required>
+        <button type="submit">Unlock</button>
+        <p class="gate-error" id="gate-error" hidden>Incorrect passcode.</p>
+      </form>
+    </div>
+
+    <div id="editor-panel" hidden>
+      <section class="panel">
+        <h2 class="panel-title">Add an assignment</h2>
+        <form id="add-form" class="assignment-form">
+          <div class="field">
+            <label for="add-subject">Subject</label>
+            <input id="add-subject" required>
+          </div>
+          <div class="field">
+            <label for="add-name">Assignment name</label>
+            <input id="add-name" required>
+          </div>
+          <div class="field">
+            <label for="add-type">Type</label>
+            <input id="add-type" list="type-options" required>
+            <datalist id="type-options">
+              <option value="Assignment">
+              <option value="Quiz">
+              <option value="Test">
+              <option value="Project">
+              <option value="Lab report">
+              <option value="Presentation">
+              <option value="Exam">
+              <option value="Viva">
+            </datalist>
+          </div>
+          <div class="field">
+            <label for="add-date">Due date</label>
+            <input type="date" id="add-date" required>
+          </div>
+          <button type="submit">Add assignment</button>
+          <p class="form-error" id="add-error" hidden></p>
+        </form>
+      </section>
+
+      <section class="panel">
+        <h2 class="panel-title">All assignments</h2>
+        <div id="editor-cards" class="cards-grid"></div>
+      </section>
+    </div>
+  </main>
+
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <script src="js/config.js"></script>
-  <script src="js/app.js"></script>
   <script>
-    const cardsEl = document.getElementById('cards');
+    // ---------- Config ----------
+    const SUPABASE_URL = 'https://wuyzjoasxnmrekufbluv.supabase.co';
+    const SUPABASE_ANON_KEY = 'sb_publishable_5ez_V-wtEPg7aRNdNwjaFw_eSR0B5BS';
+    const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+    const PASSCODE_KEY = 'deadlineTrackerPasscode';
+
+    // ---------- Shared: data + rendering ----------
+    async function fetchAssignments() {
+      const { data, error } = await supabaseClient.from('assignments').select('*');
+      if (error) throw error;
+      return data || [];
+    }
+
+    function getDaysRemaining(dateStr) {
+      const today = new Date();
+      today.setHours(0, 0, 0, 0);
+      const due = new Date(dateStr + 'T00:00:00');
+      return Math.round((due.getTime() - today.getTime()) / 86400000);
+    }
+
+    function getStatus(assignment) {
+      const effectiveDate = (assignment.is_extended && assignment.extended_date)
+        ? assignment.extended_date
+        : assignment.due_date;
+      const days = getDaysRemaining(effectiveDate);
+      let label, statusClass;
+      if (days < 0) {
+        const n = Math.abs(days);
+        label = `Overdue by ${n} day${n === 1 ? '' : 's'}`;
+        statusClass = 'overdue';
+      } else if (days === 0) {
+        label = 'Due today';
+        statusClass = 'today';
+      } else if (days === 1) {
+        label = 'Due tomorrow';
+        statusClass = 'tomorrow';
+      } else if (days <= 3) {
+        label = `Due in ${days} days`;
+        statusClass = 'soon';
+      } else {
+        label = `Due in ${days} days`;
+        statusClass = 'upcoming';
+      }
+      return { effectiveDate, days, label, statusClass };
+    }
+
+    function sortAssignments(list) {
+      return [...list].sort((a, b) => {
+        const sa = getStatus(a), sb = getStatus(b);
+        const aOver = sa.days < 0, bOver = sb.days < 0;
+        if (aOver !== bOver) return aOver ? 1 : -1;
+        if (aOver) return sb.days - sa.days;
+        return sa.days - sb.days;
+      });
+    }
+
+    function formatDate(dateStr) {
+      if (!dateStr) return '';
+      const d = new Date(dateStr + 'T00:00:00');
+      return d.toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' });
+    }
+
+    function escapeHtml(str) {
+      const div = document.createElement('div');
+      div.textContent = str ?? '';
+      return div.innerHTML;
+    }
+
+    function createCardElement(assignment, options = {}) {
+      const { editable = false, onEdit, onDelete } = options;
+      const status = getStatus(assignment);
+
+      const card = document.createElement('article');
+      card.className = `card status-${status.statusClass}`;
+      card.dataset.id = assignment.id;
+
+      const dateHtml = (assignment.is_extended && assignment.extended_date)
+        ? `<span class="date-original">${formatDate(assignment.due_date)}</span>
+           <span class="date-arrow">&rarr;</span>
+           <span class="date-new">${formatDate(assignment.extended_date)}</span>`
+        : `<span class="date-single">${formatDate(assignment.due_date)}</span>`;
+
+      card.innerHTML = `
+        <div class="card-top">
+          <h2 class="card-subject">${escapeHtml(assignment.subject)}</h2>
+          <span class="card-type">${escapeHtml(assignment.assignment_type)}</span>
+        </div>
+        <p class="card-name">${escapeHtml(assignment.assignment_name)}</p>
+        <div class="card-dates">${dateHtml}</div>
+        <div class="card-bottom">
+          <span class="tag tag-${status.statusClass}">${status.label}</span>
+          ${assignment.is_extended ? '<span class="tag tag-extended">Extended</span>' : ''}
+        </div>
+      `;
+
+      if (editable) {
+        const actions = document.createElement('div');
+        actions.className = 'card-actions';
+
+        const editBtn = document.createElement('button');
+        editBtn.type = 'button';
+        editBtn.className = 'btn btn-edit';
+        editBtn.textContent = 'Edit';
+        editBtn.addEventListener('click', () => onEdit(assignment, card));
+
+        const delBtn = document.createElement('button');
+        delBtn.type = 'button';
+        delBtn.className = 'btn btn-delete';
+        delBtn.textContent = 'Delete';
+        delBtn.addEventListener('click', () => onDelete(assignment, card));
+
+        actions.append(editBtn, delBtn);
+        card.appendChild(actions);
+      }
+
+      return card;
+    }
+
+    async function refreshCards(container, options = {}) {
+      container.innerHTML = '<p class="loading">Loading assignments&hellip;</p>';
+      try {
+        const list = await fetchAssignments();
+        const sorted = sortAssignments(list);
+        container.innerHTML = '';
+        if (sorted.length === 0) {
+          container.innerHTML = '<p class="empty">No assignments yet.</p>';
+          return sorted;
+        }
+        sorted.forEach(a => container.appendChild(createCardElement(a, options)));
+        return sorted;
+      } catch (err) {
+        container.innerHTML = `<p class="error">Couldn't load assignments: ${escapeHtml(err.message)}</p>`;
+        return [];
+      }
+    }
+
+    // ---------- Board view ----------
+    const boardCardsEl = document.getElementById('board-cards');
     const summaryEl = document.getElementById('summary-line');
 
     async function updateSummary() {
@@ -50,13 +386,225 @@
       }
     }
 
-    async function tick() {
-      await refreshCards(cardsEl, { editable: false });
+    async function tickBoard() {
+      await refreshCards(boardCardsEl, { editable: false });
       await updateSummary();
     }
 
-    tick();
-    setInterval(tick, 5 * 60 * 1000);
+    tickBoard();
+    setInterval(tickBoard, 5 * 60 * 1000);
+
+    // ---------- View toggle ----------
+    const boardView = document.getElementById('board-view');
+    const boardFooter = document.getElementById('board-footer');
+    const editorView = document.getElementById('editor-view');
+    const showEditorBtn = document.getElementById('show-editor-btn');
+    const backToBoardBtn = document.getElementById('back-to-board-btn');
+
+    showEditorBtn.addEventListener('click', async () => {
+      boardView.hidden = true;
+      boardFooter.hidden = true;
+      editorView.hidden = false;
+      await tryStoredPasscode();
+    });
+
+    backToBoardBtn.addEventListener('click', async () => {
+      editorView.hidden = true;
+      boardView.hidden = false;
+      boardFooter.hidden = false;
+      await tickBoard();
+    });
+
+    // ---------- Editor: passcode gate + CRUD ----------
+    const gate = document.getElementById('gate');
+    const gateForm = document.getElementById('gate-form');
+    const gateError = document.getElementById('gate-error');
+    const passcodeInput = document.getElementById('passcode-input');
+    const editorPanel = document.getElementById('editor-panel');
+    const editorCardsEl = document.getElementById('editor-cards');
+    const addForm = document.getElementById('add-form');
+    const addError = document.getElementById('add-error');
+
+    function getPasscode() {
+      return sessionStorage.getItem(PASSCODE_KEY) || '';
+    }
+
+    async function verifyPasscode(code) {
+      const { data, error } = await supabaseClient.rpc('verify_passcode', { passcode: code });
+      if (error) return false;
+      return data === true;
+    }
+
+    async function enterEditor(code) {
+      sessionStorage.setItem(PASSCODE_KEY, code);
+      gate.hidden = true;
+      editorPanel.hidden = false;
+      await loadEditorCards();
+    }
+
+    gateForm.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      gateError.hidden = true;
+      const code = passcodeInput.value.trim();
+      const ok = await verifyPasscode(code);
+      if (ok) {
+        await enterEditor(code);
+      } else {
+        gateError.hidden = false;
+        passcodeInput.value = '';
+        passcodeInput.focus();
+      }
+    });
+
+    async function tryStoredPasscode() {
+      const stored = sessionStorage.getItem(PASSCODE_KEY);
+      if (!stored) {
+        gate.hidden = false;
+        editorPanel.hidden = true;
+        return;
+      }
+      const ok = await verifyPasscode(stored);
+      if (ok) {
+        await enterEditor(stored);
+      } else {
+        sessionStorage.removeItem(PASSCODE_KEY);
+        gate.hidden = false;
+        editorPanel.hidden = true;
+      }
+    }
+
+    async function loadEditorCards() {
+      await refreshCards(editorCardsEl, {
+        editable: true,
+        onEdit: openEditForm,
+        onDelete: handleDelete,
+      });
+    }
+
+    addForm.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      addError.hidden = true;
+
+      const subject = document.getElementById('add-subject').value.trim();
+      const name = document.getElementById('add-name').value.trim();
+      const type = document.getElementById('add-type').value.trim();
+      const date = document.getElementById('add-date').value;
+
+      const { error } = await supabaseClient.rpc('add_assignment', {
+        passcode: getPasscode(),
+        p_subject: subject,
+        p_assignment_name: name,
+        p_assignment_type: type,
+        p_due_date: date,
+      });
+
+      if (error) {
+        addError.textContent = `Couldn't add assignment: ${error.message}`;
+        addError.hidden = false;
+        return;
+      }
+
+      addForm.reset();
+      await loadEditorCards();
+    });
+
+    async function handleDelete(assignment, cardEl) {
+      const confirmed = confirm(`Delete "${assignment.assignment_name}" (${assignment.subject})?`);
+      if (!confirmed) return;
+
+      const { error } = await supabaseClient.rpc('delete_assignment', {
+        passcode: getPasscode(),
+        p_id: assignment.id,
+      });
+
+      if (error) {
+        alert(`Couldn't delete: ${error.message}`);
+        return;
+      }
+      await loadEditorCards();
+    }
+
+    function openEditForm(assignment, cardEl) {
+      const form = document.createElement('form');
+      form.className = 'edit-form';
+      form.innerHTML = `
+        <div class="field">
+          <label>Subject</label>
+          <input class="e-subject" value="${escapeHtml(assignment.subject)}" required>
+        </div>
+        <div class="field">
+          <label>Assignment name</label>
+          <input class="e-name" value="${escapeHtml(assignment.assignment_name)}" required>
+        </div>
+        <div class="field">
+          <label>Type</label>
+          <input class="e-type" list="type-options" value="${escapeHtml(assignment.assignment_type)}" required>
+        </div>
+        <div class="field">
+          <label>Due date</label>
+          <input type="date" class="e-date" value="${assignment.due_date}" required>
+        </div>
+        <label class="checkbox-field">
+          <input type="checkbox" class="e-extended" ${assignment.is_extended ? 'checked' : ''}>
+          Extended
+        </label>
+        <div class="field e-extended-date-field" ${assignment.is_extended ? '' : 'hidden'}>
+          <label>New date</label>
+          <input type="date" class="e-extended-date" value="${assignment.extended_date || ''}">
+        </div>
+        <div class="edit-actions">
+          <button type="submit" class="btn btn-save">Save</button>
+          <button type="button" class="btn btn-cancel">Cancel</button>
+        </div>
+        <p class="form-error e-error" hidden></p>
+      `;
+
+      const extendedCheckbox = form.querySelector('.e-extended');
+      const extendedDateField = form.querySelector('.e-extended-date-field');
+      extendedCheckbox.addEventListener('change', () => {
+        extendedDateField.hidden = !extendedCheckbox.checked;
+      });
+
+      form.querySelector('.btn-cancel').addEventListener('click', () => {
+        form.replaceWith(cardEl);
+      });
+
+      form.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const errorEl = form.querySelector('.e-error');
+        errorEl.hidden = true;
+
+        const isExtended = extendedCheckbox.checked;
+        const extendedDate = isExtended ? form.querySelector('.e-extended-date').value : null;
+
+        if (isExtended && !extendedDate) {
+          errorEl.textContent = 'Pick a new date, or uncheck Extended.';
+          errorEl.hidden = false;
+          return;
+        }
+
+        const { error } = await supabaseClient.rpc('update_assignment', {
+          passcode: getPasscode(),
+          p_id: assignment.id,
+          p_subject: form.querySelector('.e-subject').value.trim(),
+          p_assignment_name: form.querySelector('.e-name').value.trim(),
+          p_assignment_type: form.querySelector('.e-type').value.trim(),
+          p_due_date: form.querySelector('.e-date').value,
+          p_is_extended: isExtended,
+          p_extended_date: extendedDate,
+        });
+
+        if (error) {
+          errorEl.textContent = `Couldn't save: ${error.message}`;
+          errorEl.hidden = false;
+          return;
+        }
+
+        await loadEditorCards();
+      });
+
+      cardEl.replaceWith(form);
+    }
   </script>
 </body>
 </html>
