@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Deadline Tracker — Editor</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600&family=IBM+Plex+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+  <div id="gate" class="gate">
+    <form id="gate-form" class="gate-form">
+      <h1 class="gate-title">Editor access</h1>
+      <p class="gate-copy">Enter the passcode to add, edit, or remove assignments.</p>
+      <input type="password" id="passcode-input" placeholder="Passcode" inputmode="numeric" autocomplete="off" required>
+      <button type="submit">Unlock</button>
+      <p class="gate-error" id="gate-error" hidden>Incorrect passcode.</p>
+    </form>
+  </div>
+
+  <div id="editor" class="editor" hidden>
+    <header class="site-header">
+      <div class="header-inner">
+        <div>
+          <h1 class="site-title">Editor</h1>
+          <p class="site-subtitle">Add, edit, or remove assignments for the batch.</p>
+        </div>
+        <a class="editor-link" href="index.html">View board</a>
+      </div>
+    </header>
+
+    <main class="editor-main">
+      <section class="panel">
+        <h2 class="panel-title">Add an assignment</h2>
+        <form id="add-form" class="assignment-form">
+          <div class="field">
+            <label for="add-subject">Subject</label>
+            <input id="add-subject" required>
+          </div>
+          <div class="field">
+            <label for="add-name">Assignment name</label>
+            <input id="add-name" required>
+          </div>
+          <div class="field">
+            <label for="add-type">Type</label>
+            <input id="add-type" list="type-options" required>
+            <datalist id="type-options">
+              <option value="Assignment">
+              <option value="Quiz">
+              <option value="Test">
+              <option value="Project">
+              <option value="Lab report">
+              <option value="Presentation">
+              <option value="Exam">
+              <option value="Viva">
+            </datalist>
+          </div>
+          <div class="field">
+            <label for="add-date">Due date</label>
+            <input type="date" id="add-date" required>
+          </div>
+          <button type="submit">Add assignment</button>
+          <p class="form-error" id="add-error" hidden></p>
+        </form>
+      </section>
+
+      <section class="panel">
+        <h2 class="panel-title">All assignments</h2>
+        <div id="cards" class="cards-grid"></div>
+      </section>
+    </main>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="js/config.js"></script>
+  <script src="js/app.js"></script>
+  <script src="js/editor.js"></script>
+</body>
+</html>
