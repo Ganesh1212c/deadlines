@@ -155,11 +155,12 @@
   }
   .timeline-entry:hover .timeline-content { border-color: var(--border-strong); background: var(--glass-strong); transform: translateX(2px); }
 
-  .entry-top { display: flex; justify-content: space-between; align-items: baseline; gap: 10px; }
-  .entry-subject { font-size: 1.15rem; line-height: 1.25; }
+  .entry-top { display: flex; justify-content: space-between; align-items: flex-start; gap: 10px; flex-wrap: wrap; }
+  .entry-subject { font-size: 1.15rem; line-height: 1.25; flex: 1 1 auto; min-width: 0; overflow-wrap: break-word; }
   .entry-type {
     font-size: 0.72rem; font-weight: 500; color: var(--text-muted);
     border: 1px solid var(--border); border-radius: 999px; padding: 3px 11px; white-space: nowrap;
+    flex-shrink: 0; margin-top: 2px;
   }
   .entry-name { color: var(--text-muted); font-size: 0.94rem; margin-top: 4px; }
   .entry-datetime {
@@ -283,7 +284,6 @@
     .header-inner { padding: 20px 16px; }
     .page-wrap, .editor-main { padding: 32px 14px 44px; }
     .editor-top { padding: 18px 14px 0; }
-    .entry-top { flex-direction: column; align-items: flex-start; gap: 4px; }
     .toast-stack { left: 14px; right: 14px; align-items: stretch; }
     .toast { max-width: none; }
   }
