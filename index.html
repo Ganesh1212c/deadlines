@@ -155,13 +155,8 @@
   }
   .timeline-entry:hover .timeline-content { border-color: var(--border-strong); background: var(--glass-strong); transform: translateX(2px); }
 
-  .entry-top { display: flex; justify-content: space-between; align-items: flex-start; gap: 10px; flex-wrap: wrap; }
-  .entry-subject { font-size: 1.15rem; line-height: 1.25; flex: 1 1 auto; min-width: 0; overflow-wrap: break-word; }
-  .entry-type {
-    font-size: 0.72rem; font-weight: 500; color: var(--text-muted);
-    border: 1px solid var(--border); border-radius: 999px; padding: 3px 11px; white-space: nowrap;
-    flex-shrink: 0; margin-top: 2px;
-  }
+  .entry-top { display: flex; }
+  .entry-subject { font-size: 1.15rem; line-height: 1.25; overflow-wrap: break-word; }
   .entry-name { color: var(--text-muted); font-size: 0.94rem; margin-top: 4px; }
   .entry-datetime {
     font-family: var(--font-mono); font-size: 0.82rem; letter-spacing: -0.01em;
@@ -573,9 +568,8 @@
         <div class="timeline-content">
           <div class="entry-top">
             <h2 class="entry-subject">${escapeHtml(assignment.subject)}</h2>
-            <span class="entry-type">${escapeHtml(assignment.assignment_type)}</span>
           </div>
-          <p class="entry-name">${escapeHtml(assignment.assignment_name)}</p>
+          <p class="entry-name">${escapeHtml(assignment.assignment_name)}, ${escapeHtml(assignment.assignment_type)}</p>
           <div class="entry-datetime">${dateHtml}</div>
           <div class="status-row">
             <span class="status-text ${status.statusClass}">${status.label}</span>
