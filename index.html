@@ -10,14 +10,14 @@
 <style>
   :root {
     --bg: #000000;
-    --surface: #0a0a0c;
-    --surface-raised: #131316;
-    --surface-hover: #19191d;
-    --border: rgba(255, 255, 255, 0.08);
-    --border-strong: rgba(255, 255, 255, 0.18);
+    --glass: rgba(255, 255, 255, 0.035);
+    --glass-strong: rgba(255, 255, 255, 0.06);
+    --field: rgba(255, 255, 255, 0.045);
+    --border: rgba(255, 255, 255, 0.09);
+    --border-strong: rgba(255, 255, 255, 0.2);
     --text: #f5f5f7;
-    --text-muted: #8e8e96;
-    --text-faint: #57575f;
+    --text-muted: #93939c;
+    --text-faint: #5a5a63;
 
     --white: #ffffff;
     --white-dim: #e4e4e7;
@@ -27,11 +27,11 @@
     --soon: #6fb8ad;
     --overdue: #e0798a;
     --extended: #7aa8d9;
-    --upcoming: #6b6b72;
+    --upcoming: #74747c;
 
     --radius-sm: 8px;
-    --radius: 12px;
-    --radius-lg: 18px;
+    --radius: 14px;
+    --radius-lg: 20px;
 
     --font-display: 'Instrument Sans', -apple-system, sans-serif;
     --font-body: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
@@ -39,7 +39,7 @@
   }
 
   *, *::before, *::after { box-sizing: border-box; }
-  html, body { margin: 0; padding: 0; }
+  html, body { margin: 0; padding: 0; height: 100%; }
   body {
     background: var(--bg);
     color: var(--text);
@@ -48,117 +48,129 @@
     line-height: 1.5;
     -webkit-font-smoothing: antialiased;
     position: relative;
-  }
-  /* One deliberate atmospheric moment: a soft glow behind the header. */
-  body::before {
-    content: '';
-    position: fixed;
-    top: -30%;
-    left: 50%;
-    transform: translateX(-50%);
-    width: 900px;
-    height: 700px;
-    background: radial-gradient(circle, rgba(122, 168, 217, 0.10), rgba(111, 184, 173, 0.06) 45%, transparent 70%);
-    filter: blur(70px);
-    pointer-events: none;
-    z-index: 0;
+    min-height: 100vh;
   }
   h1, h2 { margin: 0; font-family: var(--font-display); font-weight: 600; letter-spacing: -0.015em; }
   p { margin: 0; }
   a { color: var(--text); text-decoration: none; }
-  a:hover { text-decoration: underline; }
   button { font-family: inherit; cursor: pointer; }
   input { font-family: inherit; }
 
   :focus-visible { outline: 2px solid rgba(255, 255, 255, 0.5); outline-offset: 2px; }
   @media (prefers-reduced-motion: reduce) { *, *::before, *::after { transition: none !important; animation: none !important; } }
 
+  /* ---------- Ambient background: starfield + aurora glows ---------- */
+  #starfield { position: fixed; inset: 0; z-index: 0; pointer-events: none; }
+  body::before {
+    content: ''; position: fixed; top: -12%; left: -12%; width: 680px; height: 680px;
+    background: radial-gradient(circle, rgba(122, 168, 217, 0.16), transparent 70%);
+    filter: blur(90px); pointer-events: none; z-index: 0;
+  }
+  body::after {
+    content: ''; position: fixed; bottom: -16%; right: -12%; width: 680px; height: 680px;
+    background: radial-gradient(circle, rgba(111, 184, 173, 0.13), transparent 70%);
+    filter: blur(90px); pointer-events: none; z-index: 0;
+  }
+
   /* ---------- Header ---------- */
   .site-header {
     position: sticky; top: 0; z-index: 10;
     border-bottom: 1px solid var(--border);
-    background: rgba(0, 0, 0, 0.75);
-    backdrop-filter: blur(12px);
-    -webkit-backdrop-filter: blur(12px);
+    background: rgba(0, 0, 0, 0.7);
+    backdrop-filter: blur(14px); -webkit-backdrop-filter: blur(14px);
   }
   .header-inner {
-    max-width: 1120px; margin: 0 auto; padding: 24px 24px;
+    max-width: 900px; margin: 0 auto; padding: 26px 24px;
     display: flex; justify-content: space-between; align-items: center; gap: 16px; flex-wrap: wrap;
     position: relative; z-index: 1;
   }
-  .site-title { font-size: 1.85rem; }
-  .site-subtitle { margin-top: 5px; color: var(--text-muted); font-size: 0.9rem; }
+  .site-title {
+    font-size: 1.95rem;
+    background: linear-gradient(135deg, #ffffff 10%, #c3d3ef 55%, #94e0d1 100%);
+    -webkit-background-clip: text; background-clip: text; color: transparent;
+    text-shadow: 0 0 34px rgba(122, 168, 217, 0.25);
+  }
+  .site-subtitle { margin-top: 6px; color: var(--text-muted); font-size: 0.9rem; }
 
   /* ---------- Buttons ---------- */
   .btn {
     display: inline-flex; align-items: center; justify-content: center; gap: 6px;
-    border-radius: var(--radius-sm);
-    padding: 10px 18px;
-    font-size: 0.86rem;
-    font-weight: 500;
-    border: 1px solid var(--border);
-    background: transparent;
-    color: var(--text);
+    border-radius: var(--radius-sm); padding: 10px 18px; font-size: 0.86rem; font-weight: 500;
+    border: 1px solid var(--border); background: var(--glass); color: var(--text);
+    backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px);
     transition: background-color 140ms ease, border-color 140ms ease, color 140ms ease, transform 100ms ease;
   }
-  .btn:hover { border-color: var(--border-strong); background: rgba(255, 255, 255, 0.04); }
+  .btn:hover { border-color: var(--border-strong); background: var(--glass-strong); }
   .btn:active { transform: scale(0.97); }
   .btn-primary { background: var(--white); border-color: var(--white); color: var(--black); font-weight: 600; }
   .btn-primary:hover { background: var(--white-dim); border-color: var(--white-dim); }
   .btn-danger:hover { border-color: var(--overdue); color: var(--overdue); }
   .nav-btn {
     border-radius: 999px; padding: 9px 20px; border: 1px solid var(--border);
-    background: transparent; color: var(--text); font-size: 0.88rem; font-weight: 500;
+    background: var(--glass); color: var(--text); font-size: 0.88rem; font-weight: 500;
+    backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px);
     transition: background-color 140ms ease, border-color 140ms ease;
   }
-  .nav-btn:hover { border-color: var(--border-strong); background: rgba(255, 255, 255, 0.05); }
+  .nav-btn:hover { border-color: var(--border-strong); background: var(--glass-strong); }
 
   /* ---------- Layout ---------- */
-  .cards-wrap, .editor-main { max-width: 1120px; margin: 0 auto; padding: 32px 24px 64px; position: relative; z-index: 1; }
-  .editor-top { max-width: 1120px; margin: 0 auto; padding: 24px 24px 0; position: relative; z-index: 1; }
-  .cards-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 18px; }
-  .empty, .error { color: var(--text-muted); padding: 40px 0; grid-column: 1 / -1; }
+  .page-wrap, .editor-main { max-width: 900px; margin: 0 auto; padding: 40px 24px 64px; position: relative; z-index: 1; }
+  .editor-top { max-width: 900px; margin: 0 auto; padding: 24px 24px 0; position: relative; z-index: 1; }
+  .empty, .error { color: var(--text-muted); padding: 40px 0; }
   .error { color: var(--overdue); }
 
   /* ---------- View transitions ---------- */
   @keyframes view-in { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: translateY(0); } }
   .view-enter { animation: view-in 220ms ease; }
 
-  /* ---------- Card ---------- */
-  @keyframes card-in { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
-  .card {
-    background: var(--surface); border: 1px solid var(--border);
-    border-radius: var(--radius); padding: 20px 20px 18px; display: flex; flex-direction: column; gap: 12px;
-    transition: transform 150ms ease, border-color 150ms ease, box-shadow 150ms ease;
+  /* ---------- Timeline ---------- */
+  .timeline { position: relative; display: flex; flex-direction: column; }
+  .timeline-line {
+    position: absolute; left: 15px; top: 6px; bottom: 6px; width: 2px;
+    background: linear-gradient(to bottom, transparent, rgba(255, 255, 255, 0.14) 4%, rgba(255, 255, 255, 0.14) 96%, transparent);
   }
-  .card.card-enter { animation: card-in 320ms ease both; }
-  .card:hover { border-color: var(--border-strong); transform: translateY(-2px); box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.05); }
+  .timeline-node-col { width: 32px; display: flex; justify-content: center; padding-top: 22px; flex-shrink: 0; }
 
-  .card-top { display: flex; justify-content: space-between; align-items: baseline; gap: 10px; }
-  .card-subject { font-size: 1.2rem; line-height: 1.25; }
-  .card-type {
+  @keyframes entry-in { from { opacity: 0; transform: translateX(-8px); } to { opacity: 1; transform: translateX(0); } }
+  .timeline-entry { position: relative; display: flex; align-items: flex-start; gap: 16px; padding: 8px 0; }
+  .timeline-entry.entry-enter { animation: entry-in 340ms ease both; }
+
+  .timeline-node {
+    position: relative; width: 10px; height: 10px; border-radius: 50%; background: var(--upcoming); color: var(--upcoming);
+    box-shadow: 0 0 0 4px var(--bg), 0 0 14px 2px currentColor;
+  }
+  .timeline-node.today, .timeline-node.tomorrow { background: var(--today); color: var(--today); }
+  .timeline-node.soon { background: var(--soon); color: var(--soon); }
+  .timeline-node.overdue { background: var(--overdue); color: var(--overdue); }
+  @keyframes dot-ping { 0% { transform: scale(1); opacity: 0.55; } 100% { transform: scale(2.8); opacity: 0; } }
+  .timeline-node.today::after, .timeline-node.overdue::after {
+    content: ''; position: absolute; inset: -4px; border-radius: 50%; background: inherit; animation: dot-ping 2s ease-out infinite;
+  }
+
+  .timeline-content {
+    flex: 1; background: var(--glass); border: 1px solid var(--border); border-radius: var(--radius);
+    padding: 18px 20px; margin-bottom: 14px;
+    backdrop-filter: blur(14px); -webkit-backdrop-filter: blur(14px);
+    transition: border-color 150ms ease, background-color 150ms ease, transform 150ms ease;
+  }
+  .timeline-entry:hover .timeline-content { border-color: var(--border-strong); background: var(--glass-strong); transform: translateX(2px); }
+
+  .entry-top { display: flex; justify-content: space-between; align-items: baseline; gap: 10px; }
+  .entry-subject { font-size: 1.15rem; line-height: 1.25; }
+  .entry-type {
     font-size: 0.72rem; font-weight: 500; color: var(--text-muted);
     border: 1px solid var(--border); border-radius: 999px; padding: 3px 11px; white-space: nowrap;
   }
-  .card-name { color: var(--text-muted); font-size: 0.95rem; }
-  .card-datetime {
-    font-family: var(--font-mono); font-size: 0.83rem; letter-spacing: -0.01em;
-    color: var(--text-muted); display: flex; align-items: center; gap: 6px; flex-wrap: wrap;
+  .entry-name { color: var(--text-muted); font-size: 0.94rem; margin-top: 4px; }
+  .entry-datetime {
+    font-family: var(--font-mono); font-size: 0.82rem; letter-spacing: -0.01em;
+    color: var(--text-muted); display: flex; align-items: center; gap: 6px; flex-wrap: wrap; margin-top: 10px;
   }
   .date-original { text-decoration: line-through; color: var(--text-faint); }
   .date-arrow { color: var(--text-faint); }
   .date-new { color: var(--extended); }
 
-  .status-row { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; margin-top: 2px; }
-  .status-dot { position: relative; width: 6px; height: 6px; border-radius: 50%; flex-shrink: 0; background: var(--upcoming); }
-  .status-dot.today, .status-dot.tomorrow { background: var(--today); }
-  .status-dot.soon { background: var(--soon); }
-  .status-dot.overdue { background: var(--overdue); }
-  @keyframes dot-ping { 0% { transform: scale(1); opacity: 0.55; } 100% { transform: scale(2.6); opacity: 0; } }
-  .status-dot.today::after, .status-dot.overdue::after {
-    content: ''; position: absolute; inset: -4px; border-radius: 50%;
-    background: inherit; animation: dot-ping 2s ease-out infinite;
-  }
+  .status-row { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; margin-top: 8px; }
   .status-text { font-size: 0.85rem; color: var(--text-muted); }
   .status-text.today, .status-text.tomorrow { color: var(--today); }
   .status-text.soon { color: var(--soon); }
@@ -169,49 +181,62 @@
     border: 1px solid rgba(122, 168, 217, 0.35); border-radius: 999px; padding: 2px 10px;
   }
 
-  .card-actions { display: flex; gap: 8px; margin-top: 4px; }
+  .entry-actions { display: flex; gap: 8px; margin-top: 12px; }
+
+  /* ---------- The "Now" marker ---------- */
+  .now-marker { position: relative; display: flex; align-items: center; gap: 12px; padding: 4px 0 18px; }
+  .now-node {
+    position: relative; display: block; width: 10px; height: 10px; border-radius: 50%;
+    background: #fff; box-shadow: 0 0 0 4px var(--bg), 0 0 16px 4px rgba(255, 255, 255, 0.55);
+  }
+  .now-node::after {
+    content: ''; position: absolute; inset: -4px; border-radius: 50%;
+    background: rgba(255, 255, 255, 0.55); animation: dot-ping 2.4s ease-out infinite;
+  }
+  .now-marker-label { font-family: var(--font-mono); font-size: 0.74rem; color: var(--text-muted); white-space: nowrap; }
+  .now-marker-line { flex: 1; height: 1px; background: linear-gradient(to right, rgba(255, 255, 255, 0.35), transparent 92%); }
 
   /* ---------- Skeleton loading ---------- */
   @keyframes skeleton-shimmer { 0% { background-position: 200% 0; } 100% { background-position: -200% 0; } }
-  .skeleton-card {
-    background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius);
-    padding: 20px; display: flex; flex-direction: column; gap: 12px;
-  }
+  .skeleton-node { display: block; width: 10px; height: 10px; border-radius: 50%; background: var(--glass-strong); margin-top: 22px; }
   .skeleton-bar {
     height: 13px; border-radius: 6px;
-    background: linear-gradient(90deg, var(--surface-raised) 25%, var(--surface-hover) 50%, var(--surface-raised) 75%);
-    background-size: 200% 100%;
-    animation: skeleton-shimmer 1.4s ease-in-out infinite;
+    background: linear-gradient(90deg, var(--glass) 25%, var(--glass-strong) 50%, var(--glass) 75%);
+    background-size: 200% 100%; animation: skeleton-shimmer 1.4s ease-in-out infinite;
   }
 
   /* ---------- Forms ---------- */
-  .panel { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: 24px; margin-bottom: 24px; }
+  .panel {
+    background: var(--glass); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: 26px; margin-bottom: 28px;
+    backdrop-filter: blur(14px); -webkit-backdrop-filter: blur(14px);
+  }
   .panel-title { font-size: 1.1rem; margin-bottom: 18px; }
   .assignment-form, .edit-form { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 14px; align-items: end; }
   .field { display: flex; flex-direction: column; gap: 6px; }
   .field label { font-size: 0.83rem; color: var(--text-muted); }
   input[type="text"], input:not([type]), input[type="password"] {
-    background: var(--surface-raised); border: 1px solid var(--border); color: var(--text);
+    background: var(--field); border: 1px solid var(--border); color: var(--text);
     border-radius: var(--radius-sm); padding: 10px 12px; font-size: 0.95rem; width: 100%;
     transition: border-color 140ms ease;
   }
   input[type="date"], input[type="time"] {
-    background: var(--surface-raised); border: 1px solid var(--border); color: var(--text);
+    background: var(--field); border: 1px solid var(--border); color: var(--text);
     border-radius: var(--radius-sm); padding: 10px 12px; font-size: 0.92rem; width: 100%;
     font-family: var(--font-mono); transition: border-color 140ms ease;
   }
   input:focus { border-color: rgba(255, 255, 255, 0.4); }
   .checkbox-field { display: flex; align-items: center; gap: 8px; font-size: 0.9rem; color: var(--text-muted); }
-  .edit-form { background: var(--surface-raised); border: 1px solid var(--border); border-radius: var(--radius); padding: 18px; }
+  .edit-form { background: var(--glass-strong); border: 1px solid var(--border); border-radius: var(--radius); padding: 18px; margin-bottom: 14px; }
   .edit-actions { display: flex; gap: 8px; }
   .form-error { color: var(--overdue); font-size: 0.85rem; grid-column: 1 / -1; }
 
   /* ---------- Passcode gate ---------- */
-  .gate { display: flex; align-items: center; justify-content: center; padding: 64px 20px; }
+  .gate { display: flex; align-items: center; justify-content: center; padding: 70px 20px; position: relative; z-index: 1; }
   .gate-form {
-    background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-lg);
-    padding: 34px; max-width: 320px; width: 100%; display: flex; flex-direction: column; gap: 14px;
-    box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.04);
+    background: var(--glass); border: 1px solid var(--border); border-radius: var(--radius-lg);
+    padding: 36px; max-width: 320px; width: 100%; display: flex; flex-direction: column; gap: 14px;
+    backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px);
+    box-shadow: 0 30px 80px rgba(0, 0, 0, 0.5);
   }
   .gate-title { font-size: 1.3rem; }
   .gate-copy { color: var(--text-muted); font-size: 0.9rem; }
@@ -222,11 +247,11 @@
   @keyframes toast-out { to { opacity: 0; transform: translateY(10px); } }
   .toast-stack {
     position: fixed; bottom: 20px; right: 20px; z-index: 300;
-    display: flex; flex-direction: column; gap: 10px; align-items: flex-end;
-    pointer-events: none;
+    display: flex; flex-direction: column; gap: 10px; align-items: flex-end; pointer-events: none;
   }
   .toast {
-    background: var(--surface-raised); border: 1px solid var(--border-strong);
+    background: rgba(16, 16, 20, 0.85); border: 1px solid var(--border-strong);
+    backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
     color: var(--text); padding: 12px 18px; border-radius: var(--radius-sm);
     font-size: 0.88rem; box-shadow: 0 16px 40px rgba(0, 0, 0, 0.6);
     animation: toast-in 200ms ease, toast-out 200ms ease 2.3s forwards;
@@ -236,36 +261,35 @@
 
   /* ---------- Confirm modal ---------- */
   .modal-overlay {
-    position: fixed; inset: 0; background: rgba(0, 0, 0, 0.6);
+    position: fixed; inset: 0; background: rgba(0, 0, 0, 0.65);
     display: flex; align-items: center; justify-content: center; z-index: 200;
-    backdrop-filter: blur(4px); -webkit-backdrop-filter: blur(4px);
-    padding: 20px;
+    backdrop-filter: blur(6px); -webkit-backdrop-filter: blur(6px); padding: 20px;
   }
   .modal-card {
-    background: var(--surface); border: 1px solid var(--border-strong); border-radius: var(--radius-lg);
-    padding: 26px; max-width: 340px; width: 100%;
-    display: flex; flex-direction: column; gap: 16px;
-    box-shadow: 0 24px 64px rgba(0, 0, 0, 0.6);
+    background: rgba(16, 16, 20, 0.9); border: 1px solid var(--border-strong); border-radius: var(--radius-lg);
+    backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px);
+    padding: 26px; max-width: 340px; width: 100%; display: flex; flex-direction: column; gap: 16px;
+    box-shadow: 0 30px 80px rgba(0, 0, 0, 0.6);
   }
   .modal-title { font-size: 1.05rem; font-family: var(--font-display); font-weight: 600; }
   .modal-message { color: var(--text-muted); font-size: 0.92rem; }
   .modal-actions { display: flex; gap: 10px; justify-content: flex-end; }
 
   /* ---------- Footer ---------- */
-  .site-footer { max-width: 1120px; margin: 0 auto; padding: 20px 24px; color: var(--text-faint); font-size: 0.85rem; position: relative; z-index: 1; }
+  .site-footer { max-width: 900px; margin: 0 auto; padding: 20px 24px; color: var(--text-faint); font-size: 0.85rem; position: relative; z-index: 1; }
 
   @media (max-width: 640px) {
-    .header-inner { padding: 18px 16px; }
-    .cards-wrap, .editor-main { padding: 24px 14px 44px; }
+    .header-inner { padding: 20px 16px; }
+    .page-wrap, .editor-main { padding: 32px 14px 44px; }
     .editor-top { padding: 18px 14px 0; }
-    .cards-grid { grid-template-columns: 1fr; }
-    .card-top { flex-direction: column; align-items: flex-start; gap: 4px; }
+    .entry-top { flex-direction: column; align-items: flex-start; gap: 4px; }
     .toast-stack { left: 14px; right: 14px; align-items: stretch; }
     .toast { max-width: none; }
   }
 </style>
 </head>
 <body>
+  <canvas id="starfield"></canvas>
 
   <header class="site-header">
     <div class="header-inner">
@@ -277,8 +301,8 @@
     </div>
   </header>
 
-  <main class="cards-wrap" id="board-view">
-    <div id="board-cards" class="cards-grid" aria-live="polite"></div>
+  <main class="page-wrap" id="board-view">
+    <div id="board-timeline" class="timeline" aria-live="polite"></div>
   </main>
 
   <footer class="site-footer" id="board-footer">
@@ -341,7 +365,7 @@
 
       <section class="panel">
         <h2 class="panel-title">All assignments</h2>
-        <div id="editor-cards" class="cards-grid"></div>
+        <div id="editor-timeline" class="timeline"></div>
       </section>
     </div>
   </main>
@@ -369,6 +393,47 @@
     // Kept only in memory — never persisted — so the passcode is required
     // again every time the editor is opened.
     let currentPasscode = null;
+
+    // ---------- Starfield background ----------
+    (function initStarfield() {
+      const canvas = document.getElementById('starfield');
+      const ctx = canvas.getContext('2d');
+      const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+      let stars = [];
+
+      function resize() {
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerHeight;
+      }
+      function seed() {
+        const count = Math.min(120, Math.floor((canvas.width * canvas.height) / 11000));
+        stars = Array.from({ length: count }, () => ({
+          x: Math.random() * canvas.width,
+          y: Math.random() * canvas.height,
+          r: Math.random() * 1.1 + 0.3,
+          base: Math.random() * 0.45 + 0.15,
+          speed: Math.random() * 0.02 + 0.006,
+          phase: Math.random() * Math.PI * 2,
+        }));
+      }
+      function draw(t) {
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        for (const s of stars) {
+          const alpha = Math.max(0, s.base + Math.sin(t * s.speed + s.phase) * 0.22);
+          ctx.beginPath();
+          ctx.arc(s.x, s.y, s.r, 0, Math.PI * 2);
+          ctx.fillStyle = `rgba(255,255,255,${alpha})`;
+          ctx.fill();
+        }
+        if (!reduceMotion) requestAnimationFrame(draw);
+      }
+
+      resize();
+      seed();
+      draw(0);
+      if (!reduceMotion) requestAnimationFrame(draw);
+      window.addEventListener('resize', () => { resize(); seed(); if (reduceMotion) draw(0); });
+    })();
 
     // ---------- Toasts ----------
     const toastStack = document.getElementById('toast-stack');
@@ -403,7 +468,7 @@
       });
     }
 
-    // ---------- Shared: data + rendering ----------
+    // ---------- Shared: data + status ----------
     async function fetchAssignments() {
       const { data, error } = await supabaseClient.from('assignments').select('*');
       if (error) throw error;
@@ -502,27 +567,42 @@
       return div.innerHTML;
     }
 
-    function renderSkeletons(container, count = 4) {
+    // ---------- Timeline rendering ----------
+    function renderTimelineSkeletons(container, count = 4) {
       container.innerHTML = '';
       for (let i = 0; i < count; i++) {
-        const c = document.createElement('div');
-        c.className = 'skeleton-card';
-        c.innerHTML = `
-          <div class="skeleton-bar" style="width:55%;height:18px;"></div>
-          <div class="skeleton-bar" style="width:80%;"></div>
-          <div class="skeleton-bar" style="width:40%;"></div>
+        const entry = document.createElement('div');
+        entry.className = 'timeline-entry';
+        entry.innerHTML = `
+          <div class="timeline-node-col"><span class="skeleton-node"></span></div>
+          <div class="timeline-content">
+            <div class="skeleton-bar" style="width:50%;height:17px;"></div>
+            <div class="skeleton-bar" style="width:75%;margin-top:10px;"></div>
+            <div class="skeleton-bar" style="width:35%;margin-top:10px;"></div>
+          </div>
         `;
-        container.appendChild(c);
+        container.appendChild(entry);
       }
     }
 
-    function createCardElement(assignment, options = {}) {
+    function buildNowMarker() {
+      const marker = document.createElement('div');
+      marker.className = 'now-marker';
+      marker.innerHTML = `
+        <div class="timeline-node-col"><span class="now-node"></span></div>
+        <span class="now-marker-label">Now</span>
+        <div class="now-marker-line"></div>
+      `;
+      return marker;
+    }
+
+    function createTimelineEntry(assignment, options = {}) {
       const { editable = false, onEdit, onDelete } = options;
       const status = getStatus(assignment);
 
-      const card = document.createElement('article');
-      card.className = 'card';
-      card.dataset.id = assignment.id;
+      const entry = document.createElement('div');
+      entry.className = 'timeline-entry';
+      entry.dataset.id = assignment.id;
 
       const dateHtml = (assignment.is_extended && assignment.extended_at)
         ? `<span class="date-original">${formatDateTime(assignment.due_at)}</span>
@@ -530,63 +610,77 @@
            <span class="date-new">${formatDateTime(assignment.extended_at)}</span>`
         : `<span class="date-single">${formatDateTime(assignment.due_at)}</span>`;
 
-      card.innerHTML = `
-        <div class="card-top">
-          <h2 class="card-subject">${escapeHtml(assignment.subject)}</h2>
-          <span class="card-type">${escapeHtml(assignment.assignment_type)}</span>
-        </div>
-        <p class="card-name">${escapeHtml(assignment.assignment_name)}</p>
-        <div class="card-datetime">${dateHtml}</div>
-        <div class="status-row">
-          <span class="status-dot ${status.statusClass}"></span>
-          <span class="status-text ${status.statusClass}">${status.label}</span>
-          ${status.countdown ? `<span class="status-countdown">${status.countdown}</span>` : ''}
-          ${assignment.is_extended ? '<span class="tag-extended">Extended</span>' : ''}
+      entry.innerHTML = `
+        <div class="timeline-node-col"><span class="timeline-node ${status.statusClass}"></span></div>
+        <div class="timeline-content">
+          <div class="entry-top">
+            <h2 class="entry-subject">${escapeHtml(assignment.subject)}</h2>
+            <span class="entry-type">${escapeHtml(assignment.assignment_type)}</span>
+          </div>
+          <p class="entry-name">${escapeHtml(assignment.assignment_name)}</p>
+          <div class="entry-datetime">${dateHtml}</div>
+          <div class="status-row">
+            <span class="status-text ${status.statusClass}">${status.label}</span>
+            ${status.countdown ? `<span class="status-countdown">${status.countdown}</span>` : ''}
+            ${assignment.is_extended ? '<span class="tag-extended">Extended</span>' : ''}
+          </div>
         </div>
       `;
 
       if (editable) {
         const actions = document.createElement('div');
-        actions.className = 'card-actions';
+        actions.className = 'entry-actions';
 
         const editBtn = document.createElement('button');
         editBtn.type = 'button';
         editBtn.className = 'btn';
         editBtn.textContent = 'Edit';
-        editBtn.addEventListener('click', () => onEdit(assignment, card));
+        editBtn.addEventListener('click', () => onEdit(assignment, entry));
 
         const delBtn = document.createElement('button');
         delBtn.type = 'button';
         delBtn.className = 'btn btn-danger';
         delBtn.textContent = 'Delete';
-        delBtn.addEventListener('click', () => onDelete(assignment, card));
+        delBtn.addEventListener('click', () => onDelete(assignment, entry));
 
         actions.append(editBtn, delBtn);
-        card.appendChild(actions);
+        entry.querySelector('.timeline-content').appendChild(actions);
       }
 
-      return card;
+      return entry;
     }
 
-    async function refreshCards(container, options = {}) {
+    async function refreshTimeline(container, options = {}) {
       const { showSkeleton = true } = options;
-      if (showSkeleton) renderSkeletons(container);
+      if (showSkeleton) renderTimelineSkeletons(container);
       try {
         const list = await fetchAssignments();
         const sorted = sortAssignments(list);
         container.innerHTML = '';
+
         if (sorted.length === 0) {
           container.innerHTML = '<p class="empty">No assignments yet.</p>';
           return sorted;
         }
+
+        const line = document.createElement('div');
+        line.className = 'timeline-line';
+        container.appendChild(line);
+
+        const overdueStartIndex = sorted.findIndex(a => getStatus(a).isOverdue);
+
         sorted.forEach((a, i) => {
-          const cardEl = createCardElement(a, options);
-          if (showSkeleton) {
-            cardEl.classList.add('card-enter');
-            cardEl.style.animationDelay = `${Math.min(i, 8) * 35}ms`;
+          if (overdueStartIndex !== -1 && i === overdueStartIndex) {
+            container.appendChild(buildNowMarker());
           }
-          container.appendChild(cardEl);
+          const entryEl = createTimelineEntry(a, options);
+          if (showSkeleton) {
+            entryEl.classList.add('entry-enter');
+            entryEl.style.animationDelay = `${Math.min(i, 8) * 35}ms`;
+          }
+          container.appendChild(entryEl);
         });
+
         return sorted;
       } catch (err) {
         container.innerHTML = `<p class="error">Couldn't load assignments: ${escapeHtml(err.message)}</p>`;
@@ -595,7 +689,7 @@
     }
 
     // ---------- Board view ----------
-    const boardCardsEl = document.getElementById('board-cards');
+    const boardTimelineEl = document.getElementById('board-timeline');
     const summaryEl = document.getElementById('summary-line');
     let boardLoadedOnce = false;
 
@@ -613,7 +707,7 @@
     }
 
     async function tickBoard() {
-      await refreshCards(boardCardsEl, { editable: false, showSkeleton: !boardLoadedOnce });
+      await refreshTimeline(boardTimelineEl, { editable: false, showSkeleton: !boardLoadedOnce });
       boardLoadedOnce = true;
       await updateSummary();
     }
@@ -661,7 +755,7 @@
     });
 
     // ---------- Editor: passcode gate + CRUD ----------
-    const editorCardsEl = document.getElementById('editor-cards');
+    const editorTimelineEl = document.getElementById('editor-timeline');
     const addForm = document.getElementById('add-form');
     const addError = document.getElementById('add-error');
 
@@ -685,7 +779,7 @@
         gate.hidden = true;
         editorPanel.hidden = false;
         playEnter(editorPanel);
-        await loadEditorCards(true);
+        await loadEditorTimeline(true);
       } else {
         gateError.hidden = false;
         passcodeInput.value = '';
@@ -693,8 +787,8 @@
       }
     });
 
-    async function loadEditorCards(showSkeleton = false) {
-      await refreshCards(editorCardsEl, {
+    async function loadEditorTimeline(showSkeleton = false) {
+      await refreshTimeline(editorTimelineEl, {
         editable: true,
         onEdit: openEditForm,
         onDelete: handleDelete,
@@ -729,11 +823,11 @@
 
       addForm.reset();
       document.getElementById('add-time').value = '23:59';
-      await loadEditorCards();
+      await loadEditorTimeline();
       showToast('Assignment added');
     });
 
-    async function handleDelete(assignment, cardEl) {
+    async function handleDelete(assignment, entryEl) {
       const confirmed = await showConfirm(`Delete "${assignment.assignment_name}" (${assignment.subject})? This can't be undone.`);
       if (!confirmed) return;
 
@@ -746,11 +840,11 @@
         showToast(`Couldn't delete: ${error.message}`, 'error');
         return;
       }
-      await loadEditorCards();
+      await loadEditorTimeline();
       showToast('Assignment deleted');
     }
 
-    function openEditForm(assignment, cardEl) {
+    function openEditForm(assignment, entryEl) {
       const dueDate = new Date(assignment.due_at);
       const extDate = assignment.extended_at ? new Date(assignment.extended_at) : null;
 
@@ -805,7 +899,7 @@
       });
 
       form.querySelector('.btn-cancel').addEventListener('click', () => {
-        form.replaceWith(cardEl);
+        form.replaceWith(entryEl);
       });
 
       form.addEventListener('submit', async (e) => {
@@ -843,11 +937,11 @@
           return;
         }
 
-        await loadEditorCards();
+        await loadEditorTimeline();
         showToast('Changes saved');
       });
 
-      cardEl.replaceWith(form);
+      entryEl.replaceWith(form);
     }
   </script>
 </body>
