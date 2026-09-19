@@ -93,6 +93,7 @@
   .btn-primary { background: var(--white); border-color: var(--white); color: var(--black); font-weight: 600; }
   .btn-primary:hover { background: var(--white-dim); border-color: var(--white-dim); }
   .btn-danger:hover { border-color: var(--overdue); color: var(--overdue); }
+  .header-actions { display: flex; gap: 8px; flex-wrap: wrap; }
   .nav-btn {
     border-radius: 999px; padding: 9px 20px; border: 1px solid var(--border);
     background: var(--glass); color: var(--text); font-size: 0.88rem; font-weight: 500;
@@ -100,6 +101,7 @@
     transition: background-color 140ms ease, border-color 140ms ease;
   }
   .nav-btn:hover { border-color: var(--border-strong); background: var(--glass-strong); }
+  .nav-btn.is-on { border-color: rgba(122, 168, 217, 0.4); color: var(--extended); }
 
   /* ---------- Layout ---------- */
   .page-wrap, .editor-main { max-width: 900px; margin: 0 auto; padding: 40px 24px 64px; position: relative; z-index: 1; }
@@ -152,21 +154,22 @@
     padding: 18px 20px; margin-bottom: 14px;
     backdrop-filter: blur(14px); -webkit-backdrop-filter: blur(14px);
     transition: border-color 150ms ease, background-color 150ms ease, transform 150ms ease;
+    display: flex; flex-direction: column; gap: 8px;
   }
   .timeline-entry:hover .timeline-content { border-color: var(--border-strong); background: var(--glass-strong); transform: translateX(2px); }
 
   .entry-top { display: flex; }
   .entry-subject { font-size: 1.15rem; line-height: 1.25; overflow-wrap: break-word; }
-  .entry-name { color: var(--text-muted); font-size: 0.94rem; margin-top: 4px; }
+  .entry-name { color: var(--text-muted); font-size: 0.94rem; }
   .entry-datetime {
     font-family: var(--font-mono); font-size: 0.82rem; letter-spacing: -0.01em;
-    color: var(--text-muted); display: flex; align-items: center; gap: 6px; flex-wrap: wrap; margin-top: 10px;
+    color: var(--text-muted); display: flex; align-items: center; gap: 6px; flex-wrap: wrap;
   }
   .date-original { text-decoration: line-through; color: var(--text-faint); }
   .date-arrow { color: var(--text-faint); }
   .date-new { color: var(--extended); }
 
-  .status-row { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; margin-top: 8px; }
+  .status-row { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
   .status-text { font-size: 0.85rem; color: var(--text-muted); }
   .status-text.today { color: var(--overdue); }
   .status-text.tomorrow { color: var(--today); }
@@ -288,10 +291,13 @@
   <header class="site-header">
     <div class="header-inner">
       <div>
-        <h1 class="site-title">Deadline Tracker (Batch-2)</h1>
+        <h1 class="site-title">Deadline Tracker</h1>
         <p class="site-subtitle" id="summary-line">Loading assignments&hellip;</p>
       </div>
-      <button type="button" class="nav-btn" id="show-editor-btn">Editor</button>
+      <div class="header-actions">
+        <button type="button" class="nav-btn" id="notify-btn">Enable notifications</button>
+        <button type="button" class="nav-btn" id="show-editor-btn">Editor</button>
+      </div>
     </div>
   </header>
 
@@ -300,7 +306,7 @@
   </main>
 
   <footer class="site-footer" id="board-footer">
-    <p>This tracker is only a convenience tool. Please verify deadlines through the official portal. DO NOT rely solely on this tracker..</p>
+    <p>Assignments are added and updated from the editor.</p>
   </footer>
 
   <main class="editor-main" id="editor-view" hidden>
@@ -419,6 +425,93 @@
         confirmOkBtn.addEventListener('click', onOk);
         confirmCancelBtn.addEventListener('click', onCancel);
       });
+    }
+
+    // ---------- Push notifications ----------
+    const VAPID_PUBLIC_KEY = 'BK5Hh4LblBMcW6RQL6rYEXZYKKDKrMZpY5J88NYiNPKDu0TdbU_u_jIfCb-p68IibZ9MUYTGkugmKr1ezwmVyeM';
+    const notifyBtn = document.getElementById('notify-btn');
+
+    function urlBase64ToUint8Array(base64String) {
+      const padding = '='.repeat((4 - (base64String.length % 4)) % 4);
+      const base64 = (base64String + padding).replace(/-/g, '+').replace(/_/g, '/');
+      const rawData = atob(base64);
+      return Uint8Array.from([...rawData].map((c) => c.charCodeAt(0)));
+    }
+
+    function pushSupported() {
+      return 'serviceWorker' in navigator && 'PushManager' in window && 'Notification' in window;
+    }
+
+    async function refreshNotifyButton() {
+      if (!pushSupported()) {
+        notifyBtn.hidden = true;
+        return;
+      }
+      try {
+        const reg = await navigator.serviceWorker.getRegistration();
+        const sub = reg ? await reg.pushManager.getSubscription() : null;
+        notifyBtn.textContent = sub ? 'Notifications on' : 'Enable notifications';
+        notifyBtn.classList.toggle('is-on', !!sub);
+      } catch (e) {
+        notifyBtn.textContent = 'Enable notifications';
+      }
+    }
+
+    async function enableNotifications() {
+      const permission = await Notification.requestPermission();
+      if (permission !== 'granted') {
+        showToast('Notifications were blocked', 'error');
+        return;
+      }
+      const reg = await navigator.serviceWorker.register('sw.js');
+      const sub = await reg.pushManager.subscribe({
+        userVisibleOnly: true,
+        applicationServerKey: urlBase64ToUint8Array(VAPID_PUBLIC_KEY),
+      });
+      const json = sub.toJSON();
+      const { error } = await supabaseClient.rpc('subscribe_to_push', {
+        p_endpoint: json.endpoint,
+        p_p256dh: json.keys.p256dh,
+        p_auth: json.keys.auth,
+      });
+      if (error) {
+        showToast(`Couldn't save subscription: ${error.message}`, 'error');
+        return;
+      }
+      showToast('Notifications enabled');
+      await refreshNotifyButton();
+    }
+
+    async function disableNotifications() {
+      const reg = await navigator.serviceWorker.getRegistration();
+      const sub = reg ? await reg.pushManager.getSubscription() : null;
+      if (sub) {
+        const endpoint = sub.endpoint;
+        await sub.unsubscribe();
+        await supabaseClient.rpc('unsubscribe_from_push', { p_endpoint: endpoint });
+      }
+      showToast('Notifications turned off');
+      await refreshNotifyButton();
+    }
+
+    notifyBtn.addEventListener('click', async () => {
+      const reg = await navigator.serviceWorker.getRegistration();
+      const sub = reg ? await reg.pushManager.getSubscription() : null;
+      if (sub) {
+        await disableNotifications();
+      } else {
+        try {
+          await enableNotifications();
+        } catch (e) {
+          showToast('Could not enable notifications on this browser', 'error');
+        }
+      }
+    });
+
+    if (pushSupported()) {
+      refreshNotifyButton();
+    } else {
+      notifyBtn.hidden = true;
     }
 
     // ---------- Shared: data + status ----------
