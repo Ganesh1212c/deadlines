@@ -482,6 +482,23 @@
       showToast('Notifications enabled');
       await refreshNotifyButton();
       await updateSubscriberCount();
+      try {
+        await fetch(`${SUPABASE_URL}/functions/v1/send-welcome-push`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${SUPABASE_ANON_KEY}`,
+          },
+          body: JSON.stringify({
+            endpoint: json.endpoint,
+            p256dh: json.keys.p256dh,
+            auth: json.keys.auth,
+          }),
+        });
+      } catch (e) {
+        // The subscription itself already succeeded — a failed welcome
+        // push isn't worth bothering the user about.
+      }
     }
 
     async function disableNotifications() {
