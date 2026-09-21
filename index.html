@@ -93,7 +93,8 @@
   .btn-primary { background: var(--white); border-color: var(--white); color: var(--black); font-weight: 600; }
   .btn-primary:hover { background: var(--white-dim); border-color: var(--white-dim); }
   .btn-danger:hover { border-color: var(--overdue); color: var(--overdue); }
-  .header-actions { display: flex; gap: 8px; flex-wrap: wrap; }
+  .header-actions { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+  .subscriber-count { font-family: var(--font-mono); font-size: 0.78rem; color: var(--text-faint); white-space: nowrap; }
   .nav-btn {
     border-radius: 999px; padding: 9px 20px; border: 1px solid var(--border);
     background: var(--glass); color: var(--text); font-size: 0.88rem; font-weight: 500;
@@ -291,10 +292,11 @@
   <header class="site-header">
     <div class="header-inner">
       <div>
-        <h1 class="site-title">Deadline Tracker (Batch-3)</h1>
+        <h1 class="site-title">Deadline Tracker</h1>
         <p class="site-subtitle" id="summary-line">Loading assignments&hellip;</p>
       </div>
       <div class="header-actions">
+        <span class="subscriber-count" id="subscriber-count"></span>
         <button type="button" class="nav-btn" id="notify-btn">Enable notifications</button>
       </div>
     </div>
@@ -479,6 +481,7 @@
       }
       showToast('Notifications enabled');
       await refreshNotifyButton();
+      await updateSubscriberCount();
     }
 
     async function disableNotifications() {
@@ -491,6 +494,7 @@
       }
       showToast('Notifications turned off');
       await refreshNotifyButton();
+      await updateSubscriberCount();
     }
 
     notifyBtn.addEventListener('click', async () => {
@@ -747,6 +751,7 @@
     // ---------- Board view ----------
     const boardTimelineEl = document.getElementById('board-timeline');
     const summaryEl = document.getElementById('summary-line');
+    const subscriberCountEl = document.getElementById('subscriber-count');
     let boardLoadedOnce = false;
 
     async function updateSummary() {
@@ -762,6 +767,17 @@
       }
     }
 
+    async function updateSubscriberCount() {
+      try {
+        const { data, error } = await supabaseClient.rpc('get_subscriber_count');
+        subscriberCountEl.textContent = (error || data == null)
+          ? ''
+          : `${data} subscribed`;
+      } catch (e) {
+        subscriberCountEl.textContent = '';
+      }
+    }
+
     async function tickBoard() {
       await refreshTimeline(boardTimelineEl, {
         editable: false,
@@ -770,6 +786,7 @@
       });
       boardLoadedOnce = true;
       await updateSummary();
+      await updateSubscriberCount();
     }
 
     tickBoard();
