@@ -296,7 +296,6 @@
       </div>
       <div class="header-actions">
         <button type="button" class="nav-btn" id="notify-btn">Enable notifications</button>
-        <button type="button" class="nav-btn" id="show-editor-btn">Editor</button>
       </div>
     </div>
   </header>
@@ -777,10 +776,13 @@
     setInterval(tickBoard, 60 * 1000);
 
     // ---------- View toggle ----------
+    // No visible link to the editor anywhere on the board — the only way
+    // in is knowing to visit this page with #editor on the end of the
+    // URL. The passcode gate underneath is still the real security; this
+    // just keeps the entry point off the public page entirely.
     const boardView = document.getElementById('board-view');
     const boardFooter = document.getElementById('board-footer');
     const editorView = document.getElementById('editor-view');
-    const showEditorBtn = document.getElementById('show-editor-btn');
     const backToBoardBtn = document.getElementById('back-to-board-btn');
     const gate = document.getElementById('gate');
     const gateForm = document.getElementById('gate-form');
@@ -794,7 +796,7 @@
       el.classList.add('view-enter');
     }
 
-    showEditorBtn.addEventListener('click', () => {
+    function openEditorView() {
       boardView.hidden = true;
       boardFooter.hidden = true;
       editorView.hidden = false;
@@ -804,13 +806,23 @@
       passcodeInput.value = '';
       playEnter(editorView);
       passcodeInput.focus();
-    });
+    }
+
+    function checkEditorHash() {
+      if (window.location.hash === '#editor' && editorView.hidden) {
+        openEditorView();
+      }
+    }
+
+    window.addEventListener('hashchange', checkEditorHash);
+    checkEditorHash(); // in case the page was loaded directly on #editor
 
     backToBoardBtn.addEventListener('click', async () => {
       currentPasscode = null; // passcode must be re-entered next time
       editorView.hidden = true;
       boardView.hidden = false;
       boardFooter.hidden = false;
+      history.replaceState(null, '', window.location.pathname + window.location.search);
       playEnter(boardView);
       await tickBoard();
     });
