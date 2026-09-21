@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Deadline Tracker</title>
+<title>Deadline Tracker (Batch 3)</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
@@ -482,28 +482,9 @@
       showToast('Notifications enabled');
       await refreshNotifyButton();
       await updateSubscriberCount();
-      try {
-        const res = await fetch(`${SUPABASE_URL}/functions/v1/send-welcome-push`, {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            'Authorization': `Bearer ${SUPABASE_ANON_KEY}`,
-          },
-          body: JSON.stringify({
-            endpoint: json.endpoint,
-            p256dh: json.keys.p256dh,
-            auth: json.keys.auth,
-          }),
-        });
-        if (!res.ok) {
-          console.error('send-welcome-push failed:', res.status, await res.text());
-        }
-      } catch (e) {
-        // The subscription itself already succeeded — a failed welcome
-        // push isn't worth bothering the user with a toast over, but log
-        // it so it's diagnosable from DevTools if needed.
-        console.error('send-welcome-push request failed:', e);
-      }
+      reg.showNotification('Notifications enabled', {
+        body: "You'll get pushed when deadlines are added, changed, or coming up.",
+      });
     }
 
     async function disableNotifications() {
